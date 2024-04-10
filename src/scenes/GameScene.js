@@ -8,7 +8,7 @@ class GameScene extends PointerBase {
     super("scene-game");
   }
 
-  addHeroTo(x, y, frame, {left, right, up, down, jump, noAction, death}) {
+  addHeroTo({x, y, frame}, {left, right, up, down, jump, noAction, death}) {
     const sprite = this.physics.add.sprite(x, y, 'hero');
     sprite.body.setAllowGravity(false);
     sprite.body.reset(x, y);
@@ -18,14 +18,14 @@ class GameScene extends PointerBase {
     return {sprite, actions: {left, right, up, down, jump, noAction, death}};
   }
 
-  addOthers(x, y, frame, noAction) {
+  addOthers({x, y, frame, scale = 0.25}, {left, right, up, down, jump, noAction}) {
     const sprite = this.physics.add.sprite(x, y, 'others');
     sprite.body.setAllowGravity(false);
     sprite.body.reset(x, y);
     sprite.setFrame(frame);
     sprite.setVisible(true);
-    sprite.setScale(0.25);
-    return {sprite, actions: noAction};
+    sprite.setScale(scale);
+    return {sprite, actions: {left, right, up, down, jump, noAction}};
   }
 
   create() {
@@ -36,112 +36,211 @@ class GameScene extends PointerBase {
 
     this.hero = {};
     this.hero = {
-      pos1: this.addHeroTo(60, 720, 0,
-        { right: "pos2" }
+      swordIsTaken: false,
+      keyIsTaken: false,
+      pos1: this.addHeroTo(
+        {x: 60, y: 720, frame: 0},
+        {right: "pos2"}
       ),
-      pos2: this.addHeroTo(120, 720, 1,
-        { jump: "pos3", left: "pos1", right: "takekey" }
+      pos2: this.addHeroTo(
+        {x: 120, y: 720, frame: 1},
+        {jump: "pos3", left: "pos1", right: "take:key"}
       ),
-      pos3: this.addHeroTo(80, 590, 2,
-        { right: "pos4" }
+      pos3: this.addHeroTo(
+        {x: 80, y: 590, frame: 2},
+        {right: "pos4"}
       ),
-      pos4: this.addHeroTo(130, 590, 3,
-        { jump: "pos5" }
+      pos4: this.addHeroTo(
+        {x: 130, y: 590, frame: 3},
+        {jump: "pos5"}
       ),
-      pos5: this.addHeroTo(110, 510, 4,
-        { right: "pos6" }
+      pos5: this.addHeroTo(
+        {x: 110, y: 510, frame: 4},
+        {right: "pos6"}
       ),
-      pos6: this.addHeroTo(210, 550, 5,
-        { right: "pos7", jump: "pos8"}
+      pos6: this.addHeroTo(
+        {x: 210, y: 550, frame: 5},
+        {right: "pos7", jump: "pos8"}
       ),
-      pos7: this.addHeroTo(275, 690, 6,
-        { death: true }
+      pos7: this.addHeroTo(
+        {x: 275, y: 690, frame: 6},
+        {death: true}
       ),
-      pos8: this.addHeroTo(275, 450, 7,
-        { right: "pos9" }
+      pos8: this.addHeroTo(
+        {x: 275, y: 450, frame: 7},
+        {right: "pos9"}
       ),
-      pos9: this.addHeroTo(300, 540, 8,
-        { right: "pos10" }
+      pos9: this.addHeroTo(
+        {x: 300, y: 540, frame: 8},
+        {right: "pos10"}
       ),
-      pos10: this.addHeroTo(360, 535, 9,
-        { right: "pos11", jump: "pos12" }
+      pos10: this.addHeroTo(
+        {x: 360, y: 535, frame: 9},
+        {right: "pos11", jump: "pos12"}
       ),
-      pos11: this.addHeroTo(390, 660, 10,
-        { death: true }
+      pos11: this.addHeroTo(
+        {x: 390, y: 660, frame: 10},
+        {death: true}
       ),
-      pos12:  this.addHeroTo(430, 470, 11,
-        {  }
+      pos12: this.addHeroTo(
+        {x: 430, y: 470, frame: 11},
+        {}
       ),
-      pos13:  this.addHeroTo(430, 560, 12,
-        { }
+      pos13: this.addHeroTo(
+        {x: 430, y: 560, frame: 12},
+        {}
       ),
-      pos14:  this.addHeroTo(470, 620, 13,
-        { noAction: "pos15" }
+      pos14: this.addHeroTo(
+        {x: 470, y: 620, frame: 13},
+        {noAction: "pos15"}
       ),
-      pos15:  this.addHeroTo(490, 530, 14,
-        { noAction: "pos16" }
+      pos15: this.addHeroTo(
+        {x: 490, y: 530, frame: 14},
+        {noAction: "pos16"}
       ),
-      pos16:  this.addHeroTo(510, 460, 15,
-        { noAction: "pos17" }
+      pos16: this.addHeroTo(
+        {x: 510, y: 460, frame: 15},
+        {noAction: "pos17", right: "take:sword"}
       ),
-      pos17:  this.addHeroTo(510, 360, 16,
-        { left: "pos19", jump: "pos18" }
+      pos17: this.addHeroTo(
+        {x: 510, y: 360, frame: 16},
+        {left: "pos19", jump: "pos18"}
       ),
-      pos18:  this.addHeroTo(490, 290, 17,
-        { noAction: "pos17", left: "pos19" }
+      pos18: this.addHeroTo(
+        {x: 490, y: 290, frame: 17},
+        {noAction: "pos17", left: "pos19"}
       ),
-      pos19:  this.addHeroTo(420, 360, 18,
-        { left: "pos21", jump: "pos20" }
+      pos19: this.addHeroTo(
+        {x: 420, y: 360, frame: 18},
+        {left: "pos21", jump: "pos20"}
       ),
-      pos20:  this.addHeroTo(390, 265, 19,
-        { noAction: "pos19", left: "pos20" }
+      pos20: this.addHeroTo(
+        {x: 390, y: 265, frame: 19},
+        {noAction: "pos19", left: "pos20"}
       ),
-      pos21:  this.addHeroTo(320, 360, 20,
-        { left: "pos22" }
+      pos21: this.addHeroTo(
+        {x: 320, y: 360, frame: 20},
+        {left: "pos22"}
       ),
-      pos22:  this.addHeroTo(180, 345, 21,
-        { left: "pos23" }
+      pos22: this.addHeroTo(
+        {x: 180, y: 345, frame: 21},
+        {left: "pos23"}
       ),
-      pos23:  this.addHeroTo(90, 345, 22,
-        { up: "pos24" }
+      pos23: this.addHeroTo(
+        {x: 90, y: 345, frame: 22},
+        {up: "pos24"}
       ),
-      pos24:  this.addHeroTo(50, 230, 23,
-        { right: "pos25", down: "pos23" }
+      pos24: this.addHeroTo(
+        {x: 50, y: 230, frame: 23},
+        {right: "pos25", down: "pos23"}
       ),
-      pos25:  this.addHeroTo(200, 220, 24,
-        { right: "pos26", left: "pos24" }
+      pos25: this.addHeroTo(
+        {x: 200, y: 220, frame: 24},
+        {right: "pos26", left: "pos24"}
       ),
-      pos26:  this.addHeroTo(340, 180, 25,
-        { right: "pos27", left: "pos25" }
+      pos26: this.addHeroTo(
+        {x: 340, y: 180, frame: 25},
+        {right: "pos27", left: "pos25"}
       ),
-      pos27:  this.addHeroTo(470, 195, 26,
-        { right: "openKey", left: "pos26" }
+      pos27: this.addHeroTo(
+        {x: 470, y: 195, frame: 26},
+        {right: "openKey", left: "pos26"}
       ),
-    }
-
-    this.key = this.addOthers(170, 750, 0);
-    this.downBall = {
-      pos1: this.addOthers(190, 480, 37, {noAction: "pos2"}),
-      pos2: this.addOthers(170, 580, 37, {noAction: "pos3"}),
-      pos3: this.addOthers(120, 710, 37, {noAction: "pos1"}),
-    }
-    this.snake = this.addOthers(220, 720, 2);
-    this.dog = this.addOthers(340, 720, 3);
-    this.platform = this.addOthers(315, 635, 6); // gameB might have disappear
-
-    this.platform2 = {
-      pos1: this.addOthers(395, 635, 4, {noAction:  "pos2"}),
-      pos2: this.addOthers(425, 655, 5, {noAction:  "pos1"})
+    };
+    // this should be only visible is sword is taken!
+    this.heroSword = {
+      pos17: this.addOthers({x: 483, y: 398, frame: 23},
+        {left: "pos19", jump: "pos18"}
+      ),
+      pos18: this.addOthers({x: 465, y: 310, frame: 23},
+        {noAction: "pos17", left: "pos19"}
+      ),
+      pos19: this.addOthers({x: 392, y: 396, frame: 23},
+        {left: "pos21", jump: "pos20"}
+      ),
+      pos20: this.addOthers({x: 355, y: 332, frame: 24},
+        {noAction: "pos19", left: "pos20"}
+      ),
+      pos21: this.addOthers({x: 385, y: 384, frame: 25},
+        {left: "pos22"}
+      ),
+      pos22: this.addOthers({x: 248, y: 386, frame: 28},
+        {left: "pos23"}
+      ),
+      pos23: this.addOthers({x: 78, y: 365, frame: 26},
+        {}
+      ),
     };
 
-    this.friend = this.addOthers(550, 625, 7);
-    this.friendPlatform = {
-      pos1: this.addOthers(520, 710, 8),
-      pos2: this.addOthers(510, 695, 9),
+    this.downBall = {
+      pos1: this.addOthers(
+        {x: 190, y: 480, frame: 37},
+        {noAction: "pos2"}
+      ),
+      pos2: this.addOthers(
+        {x: 170, y: 580, frame: 37},
+        {noAction: "pos3"}
+      ),
+      pos3: this.addOthers(
+        {x: 120, y: 710, frame: 37},
+        {noAction: "pos1"}
+      ),
     }
+    this.snake = this.addOthers(
+      {x: 220, y: 720, frame: 2},
+      {}
+    );
+    this.dog = this.addOthers(
+      {x: 340, y: 720, frame: 3},
+      {}
+    );
+    this.platform = this.addOthers(
+      {x: 315, y: 635, frame: 6},
+      {}
+    ); // gameB might have disappear
+
+    this.platform2 = {
+      pos1: this.addOthers(
+        {x: 395, y: 635, frame: 4},
+        {noAction: "pos2"}
+      ),
+      pos2: this.addOthers(
+        {x: 425, y: 655, frame: 5},
+        {noAction: "pos1"}
+      ),
+    };
+
+    this.friend = this.addOthers(
+      {x: 550, y: 625, frame: 7},
+      {}
+    );
+    this.friendPlatform = {
+      pos1: this.addOthers(
+        {x: 520, y: 710, frame: 8},
+        {}
+      ),
+      pos2: this.addOthers(
+        {x: 510, y: 695, frame: 9},
+        {}
+      ),
+    }
+    this.objects = {
+      key: this.addOthers(
+        {x: 170, y: 750, frame: 0},
+        {}
+      ),
+      sword: this.addOthers(
+        {x: 580, y: 480, frame: 10},
+        {}
+      ),
+    }
+    this.skull = this.addOthers(
+      {x: 48, y: 395, frame: 16, scale: 0.30},
+      {});
 
     this.base_create();
   }
+
   _checkTarget() {
 
   }
