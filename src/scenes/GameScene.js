@@ -18,6 +18,16 @@ class GameScene extends PointerBase {
     return {sprite, actions: {left, right, up, down, jump, noAction, death}};
   }
 
+  addOthers(x, y, frame, noAction) {
+    const sprite = this.physics.add.sprite(x, y, 'others');
+    sprite.body.setAllowGravity(false);
+    sprite.body.reset(x, y);
+    sprite.setFrame(frame);
+    sprite.setVisible(true);
+    sprite.setScale(0.25);
+    return {sprite, actions: noAction};
+  }
+
   create() {
     this.text = null;
     this.cameras.main.setBackgroundColor(0xFFFFFF);
@@ -44,7 +54,7 @@ class GameScene extends PointerBase {
       pos6: this.addHeroTo(210, 550, 5,
         { right: "pos7", jump: "pos8"}
       ),
-      pos7: this.addHeroTo(275, 710, 6,
+      pos7: this.addHeroTo(275, 690, 6,
         { death: true }
       ),
       pos8: this.addHeroTo(275, 450, 7,
@@ -62,18 +72,72 @@ class GameScene extends PointerBase {
       pos12:  this.addHeroTo(430, 470, 11,
         {  }
       ),
-      pos13:  this.addHeroTo(420, 560, 12,
+      pos13:  this.addHeroTo(430, 560, 12,
         { }
       ),
-      pos14:  this.addHeroTo(490, 620, 13,
+      pos14:  this.addHeroTo(470, 620, 13,
         { noAction: "pos15" }
       ),
       pos15:  this.addHeroTo(490, 530, 14,
         { noAction: "pos16" }
       ),
       pos16:  this.addHeroTo(510, 460, 15,
-        { noAction: "pos16" }
+        { noAction: "pos17" }
       ),
+      pos17:  this.addHeroTo(510, 360, 16,
+        { left: "pos19", jump: "pos18" }
+      ),
+      pos18:  this.addHeroTo(490, 290, 17,
+        { noAction: "pos17", left: "pos19" }
+      ),
+      pos19:  this.addHeroTo(420, 360, 18,
+        { left: "pos21", jump: "pos20" }
+      ),
+      pos20:  this.addHeroTo(390, 265, 19,
+        { noAction: "pos19", left: "pos20" }
+      ),
+      pos21:  this.addHeroTo(320, 360, 20,
+        { left: "pos22" }
+      ),
+      pos22:  this.addHeroTo(180, 345, 21,
+        { left: "pos23" }
+      ),
+      pos23:  this.addHeroTo(90, 345, 22,
+        { up: "pos24" }
+      ),
+      pos24:  this.addHeroTo(50, 230, 23,
+        { right: "pos25", down: "pos23" }
+      ),
+      pos25:  this.addHeroTo(200, 220, 24,
+        { right: "pos26", left: "pos24" }
+      ),
+      pos26:  this.addHeroTo(340, 180, 25,
+        { right: "pos27", left: "pos25" }
+      ),
+      pos27:  this.addHeroTo(470, 195, 26,
+        { right: "openKey", left: "pos26" }
+      ),
+    }
+
+    this.key = this.addOthers(170, 750, 0);
+    this.downBall = {
+      pos1: this.addOthers(190, 480, 37, {noAction: "pos2"}),
+      pos2: this.addOthers(170, 580, 37, {noAction: "pos3"}),
+      pos3: this.addOthers(120, 710, 37, {noAction: "pos1"}),
+    }
+    this.snake = this.addOthers(220, 720, 2);
+    this.dog = this.addOthers(340, 720, 3);
+    this.platform = this.addOthers(315, 635, 6); // gameB might have disappear
+
+    this.platform2 = {
+      pos1: this.addOthers(395, 635, 4, {noAction:  "pos2"}),
+      pos2: this.addOthers(425, 655, 5, {noAction:  "pos1"})
+    };
+
+    this.friend = this.addOthers(550, 625, 7);
+    this.friendPlatform = {
+      pos1: this.addOthers(520, 710, 8),
+      pos2: this.addOthers(510, 695, 9),
     }
 
     this.base_create();
