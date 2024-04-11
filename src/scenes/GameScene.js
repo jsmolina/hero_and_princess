@@ -168,7 +168,39 @@ class GameScene extends PointerBase {
         {left: "pos23"}
       ),
       pos23: this.addOthers({x: 78, y: 365, frame: 26},
-        {}
+        {up: "pos24"}
+      ),
+      // right only if monkey is damaged
+      pos24: this.addOthers(
+        {x: 90, y: 230, frame: 27},
+        {right: "pos25", down: "pos23", jump: "pos24_2"}
+      ),
+      pos24_2: this.addOthers(
+        {x: 105, y: 270, frame: 28},
+        {right: "pos25", down: "pos23", jump: "pos24"}
+      ),
+      // right only if monkey is damaged
+      pos25: this.addOthers(
+        {x: 220, y: 215, frame: 30},
+        {right: "pos26", left: "pos24", jump: "pos25_2"}
+      ),
+      pos25_2: this.addOthers(
+        {x: 243, y: 259, frame: 29},
+        {right: "pos26", left: "pos24", jump: "pos25"}
+      ),
+      // right only if monkey is damaged
+      pos26: this.addOthers(
+        {x: 370, y: 178, frame: 32},
+        {right: "pos27", left: "pos25", jump: "pos26_2"}
+      ),
+      pos26_2: this.addOthers(
+        {x: 390, y: 220, frame: 31},
+        {right: "pos27", left: "pos25", jump: "pos26"}
+      ),
+      // opened only if key is owned
+      pos27: this.addOthers(
+        {x: 525, y: 220, frame: 1, scale: 0.20},
+        {right: "openKey", left: "pos26"}
       ),
     };
 
