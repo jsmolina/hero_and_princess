@@ -13,15 +13,24 @@ class GameScene extends PointerBase {
 
   create() {
     this.text = null;
-    this.camerxas.main.setBackgroundColor(0xFFFFFF);
+    this.cameras.main.setBackgroundColor(0xFFFFFF);
     this.add.image(300, 500, 'bottom');
     this.add.image(300, 160, 'top');
 
     const utils = SceneUtils(this.physics);
-    this.hero = Hero(utils);
-    this.statics = Statics(utils);
-    this.enemy = Enemies(utils);
-    this.princess = Princess(utils);
+    this.hero = new Hero();
+    this.hero.create(utils);
+
+    this.enemy = new Enemies();
+    this.enemy.create(utils);
+
+    this.statics = new Statics();
+    this.statics.create(utils);
+
+    this.princess = new Princess();
+    this.princess.create(utils);
+
+    this.hero.start();
 
     this.base_create();
   }

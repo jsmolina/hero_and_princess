@@ -1,9 +1,8 @@
-const Enemies = (utils) => {
-
-  return {
-    monkeyPos: "pos24",
-    ballPos: "",
-    monkey: {
+class Enemies {
+  create(utils) {
+    this.position = "pos24";
+    this.ballPos = undefined;
+    this.monkey = {
       pos24: utils.addOthers(
         {x: 120, y: 130, frame: 20},
         {}
@@ -16,8 +15,8 @@ const Enemies = (utils) => {
         {x: 430, y: 55, frame: 22, scale: 0.22},
         {}
       ),
-    },
-    monkeyArm: {
+    };
+    this.monkeyArm = {
       pos24: utils.addOthers(
         {x: 194, y: 175, frame: 33},
         {}
@@ -46,8 +45,8 @@ const Enemies = (utils) => {
         {x: 480, y: 92, frame: 43, scale: 0.3},
         {}
       ),
-    },
-    ball: {
+    };
+    this.ball = {
       pos1: utils.addOthers(
         {x: 190, y: 380, frame: 37},
         {noAction: "pos2"}

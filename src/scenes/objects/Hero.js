@@ -1,14 +1,20 @@
-import SceneUtils from "../SceneUtils";
 
-const Hero = (utils) => {
+class Hero {
+  start() {
+      this.position = "pos1";
+      this.lives = 3;
+      this.keyIsTaken = false;
+      this.swordIsTaken = false;
+      this.positions.pos1.sprite.setVisible(true);
+  }
 
-  return {
-    swordIsTaken: false,
-    keyIsTaken: false,
-    position: "pos1",
-    lives: 3,
+  create(utils) {
+    this.swordIsTaken = false;
+    this.keyIsTaken = false;
+    this.position = "pos1";
+    this.lives = 3;
     // this should be only visible is sword is taken!
-    swordPositions: {
+    this.swordPositions = {
       pos17: utils.addOthers({x: 483, y: 298, frame: 23},
         {left: "pos19", jump: "pos18"}
       ),
@@ -62,8 +68,8 @@ const Hero = (utils) => {
         {x: 540, y: 110, frame: 1, scale: 0.20},
         {right: "openKey", left: "pos26"}
       ),
-    },
-    positions: {
+    };
+    this.positions = {
       pos1: utils.addHeroTo(
         {x: 60, y: 620, frame: 0},
         {right: "pos2"}
@@ -174,6 +180,6 @@ const Hero = (utils) => {
       ),
     }
   };
-};
+}
 
 export default Hero;
