@@ -12,6 +12,7 @@ class GameScene extends PointerBase {
   }
 
   create() {
+    this.reseted = false;
     this.text = null;
     this.cameras.main.setBackgroundColor(0xFFFFFF);
     this.add.image(300, 500, 'bottom');
@@ -33,6 +34,32 @@ class GameScene extends PointerBase {
     this.hero.start();
 
     this.base_create();
+
+    // Create a helper object for our arrow keys
+    this.cursors = this.input.keyboard.createCursorKeys();
+    this.enterKey = this.input.keyboard.addKeys('ENTER')
+  }
+
+  update(time, delta) {
+    super.update(time, delta);
+
+    if (this.cursors.shift.isDown) {
+      console.log("Reset pressed");
+      if (!this.reseted) {
+        this.hero.reset();
+        this.enemy.reset();
+        this.statics.reset();
+        this.princess.reset();
+        this.reseted = true;
+        setTimeout(() => {
+          this.hero.start();
+          this.princess.start();
+          this.enemy.start();
+          this.statics.start();
+          this.reseted = false;
+        }, 2000);
+      }
+    }
   }
 
   _checkTarget() {

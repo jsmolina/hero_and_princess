@@ -1,11 +1,26 @@
 
 class Hero {
+  hideShow(visible) {
+    this.allPositions.forEach((pos) => {
+      this.positions[pos].sprite.setVisible(visible);
+    });
+    this.allSwordPositions.forEach((pos) => {
+      this.swordPositions[pos].sprite.setVisible(visible);
+    });
+  }
+
   start() {
+      this.hideShow(false);
+
       this.position = "pos1";
       this.lives = 3;
       this.keyIsTaken = false;
       this.swordIsTaken = false;
       this.positions.pos1.sprite.setVisible(true);
+  }
+
+  reset() {
+    this.hideShow(true);
   }
 
   create(utils) {
@@ -179,6 +194,8 @@ class Hero {
         {right: "openKey", left: "pos26"}
       ),
     }
+    this.allPositions = Object.keys(this.positions);
+    this.allSwordPositions = Object.keys(this.swordPositions);
   };
 }
 

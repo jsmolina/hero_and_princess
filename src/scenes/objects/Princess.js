@@ -5,6 +5,28 @@ class Princess {
       // free princess
     }
   }
+  hideShow(visible) {
+    this.allPositions.forEach((pos) => {
+      this.positions[pos].sprite.setVisible(visible);
+    });
+    this.allLocks.forEach((pos) => {
+      this.locks[pos].sprite.setVisible(visible);
+    });
+  }
+
+  start() {
+    this.hideShow(false);
+    this.locksStatus = 4;
+    this.positions["pos1"].sprite.setVisible(true);
+    this.allLocks.forEach((pos) => {
+      this.locks[pos].sprite.setVisible(true);
+    });
+  }
+
+  reset() {
+    this.hideShow(true);
+  }
+
   create(utils) {
     this.locksStatus = 4;
 
@@ -36,6 +58,9 @@ class Princess {
         {}
       ),
     }
+
+    this.allPositions = Object.keys(this.positions);
+    this.allLocks = Object.keys(this.locks);
   }
 }
 

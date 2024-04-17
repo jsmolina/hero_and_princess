@@ -1,4 +1,15 @@
 class Statics {
+  hideShow(visible) {
+
+  }
+  start() {
+
+  }
+
+  reset() {
+    console.log(this.validPositions);
+  }
+
   create(utils) {
     this.friendPlatformPos = "pos2";
     this.swordVisible = true;

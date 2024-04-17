@@ -15,8 +15,6 @@ class PointerBase extends Scene {
   base_create() {
     console.log("registry", this.registry.get("ownObjects"))
 
-    // Create a helper object for our arrow keys
-    this.cursors = this.input.keyboard.createCursorKeys();
     /*this.target = new Vector2();
     // When the user releases the screen...
     this.input.on('pointerup', (pointer) => {

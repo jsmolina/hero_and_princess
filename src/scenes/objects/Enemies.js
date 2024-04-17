@@ -1,4 +1,25 @@
 class Enemies {
+  hideShow(visible) {
+    this.allMonkeyPositions.forEach((pos) => {
+      this.monkey[pos].sprite.setVisible(visible);
+    });
+    this.allMonkeyArmPositions.forEach((pos) => {
+      this.monkeyArm[pos].sprite.setVisible(visible);
+    });
+    this.allBallPositions.forEach((pos) => {
+      this.ball[pos].sprite.setVisible(visible);
+    });
+  }
+
+  start() {
+    this.hideShow(false);
+    // rest
+  }
+
+  reset() {
+    this.hideShow(true);
+  }
+
   create(utils) {
     this.position = "pos24";
     this.ballPos = undefined;
@@ -109,6 +130,9 @@ class Enemies {
           {}
         ),
     }
+    this.allMonkeyPositions = Object.keys(this.monkey);
+    this.allMonkeyArmPositions = Object.keys(this.monkeyArm);
+    this.allBallPositions = Object.keys(this.ball);
   };
 }
 
