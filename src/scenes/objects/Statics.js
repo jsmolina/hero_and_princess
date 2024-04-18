@@ -3,17 +3,38 @@ class Statics {
 
   }
   start() {
+    this.objects.key.sprite.setVisible(true);
+    this.objects.sword.sprite.setVisible(true);
+  }
 
+  tick() {
+    this.platform2[this.platform2Pos].sprite.setVisible(false);
+    const newPosition = this.platform2[this.platform2Pos].actions.noAction;
+    this.platform2Pos = newPosition;
+    this.platform2[newPosition].sprite.setVisible(true);
+  }
+
+  takeKey() {
+    this.objects.key.sprite.setVisible(false);
+  }
+
+  takeSword() {
+    this.objects.sword.sprite.setVisible(false);
   }
 
   reset() {
-    console.log(this.validPositions);
+    this.objects.key.sprite.setVisible(true);
+    this.objects.sword.sprite.setVisible(true);
+    if (this.platformTimeouts) {
+      clearTimeout(this.platformTimeouts);
+      this.platformTimeouts = undefined;
+    }
   }
 
   create(utils) {
+    this.platformTimeouts = undefined;
     this.friendPlatformPos = "pos2";
-    this.swordVisible = true;
-    this.keyVisible = true;
+    this.platform2Pos = "pos1";
 
     this.snake = utils.addOthers(
       {x: 220, y: 620, frame: 2, visible: true},

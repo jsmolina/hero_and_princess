@@ -1,3 +1,4 @@
+import { ACTIONS } from "../constants";
 
 class Hero {
   hideShow(visible) {
@@ -24,6 +25,7 @@ class Hero {
   }
 
   create(utils) {
+    this.autoAction = undefined;
     this.swordIsTaken = false;
     this.keyIsTaken = false;
     this.position = "pos1";
@@ -95,7 +97,7 @@ class Hero {
       ),
       pos3: utils.addHeroTo(
         {x: 80, y: 490, frame: 2},
-        {right: "pos4"}
+        {right: "pos4", noAction: "pos2"}
       ),
       pos4: utils.addHeroTo(
         {x: 130, y: 490, frame: 3},
@@ -103,7 +105,7 @@ class Hero {
       ),
       pos5: utils.addHeroTo(
         {x: 110, y: 410, frame: 4},
-        {right: "pos6"}
+        {right: "pos6", noAction: "pos4"}
       ),
       pos6: utils.addHeroTo(
         {x: 210, y: 450, frame: 5},
@@ -115,11 +117,11 @@ class Hero {
       ),
       pos8: utils.addHeroTo(
         {x: 275, y: 350, frame: 7},
-        {right: "pos9"}
+        {right: "pos9", noAction: "pos9"}
       ),
       pos9: utils.addHeroTo(
         {x: 300, y: 440, frame: 8},
-        {right: "pos10"}
+        {right: "pos10", left: "pos7", jump: "pos8"}
       ),
       pos10: utils.addHeroTo(
         {x: 360, y: 435, frame: 9},
@@ -131,11 +133,11 @@ class Hero {
       ),
       pos12: utils.addHeroTo(
         {x: 430, y: 370, frame: 11},
-        {}
+        { noAction: "pos13" } // maybe when inverse it's not this one!
       ),
       pos13: utils.addHeroTo(
         {x: 430, y: 460, frame: 12},
-        {}
+        {noAction: "pos14"}
       ),
       pos14: utils.addHeroTo(
         {x: 470, y: 520, frame: 13},
@@ -191,12 +193,75 @@ class Hero {
       ),
       pos27: utils.addHeroTo(
         {x: 490, y: 95, frame: 26},
-        {right: "openKey", left: "pos26"}
+        {right: "take:openKey", left: "pos26"}
       ),
     }
     this.allPositions = Object.keys(this.positions);
     this.allSwordPositions = Object.keys(this.swordPositions);
   };
+
+  changePosition(newPosition, events) {
+    this.autoAction = undefined;
+    console.log("Move to", newPosition);
+    this.positions[this.position].sprite.setVisible(false);
+    this.position = newPosition;
+    this.positions[this.position].sprite.setVisible(true);
+
+    // detect death position on new Position (fallen)
+    if (this.positions[newPosition].actions.death) {
+      events.emit(ACTIONS.death);
+    }
+    // detect future automatic action and set a timeout for it
+    if(this.positions[newPosition].actions.noAction) {
+      // this will happen when you don't push any other button
+      this.autoAction = this.positions[newPosition].actions.noAction;
+      console.log("auto action ", this.autoAction)
+      this.autoActionHappened = Date.now();
+    }
+  }
+
+  move(where, events) {
+    if (this.positions[this.position].actions[where]) {
+      const newPosition = this.positions[this.position].actions[where];
+
+      if (newPosition.includes("take:")) {
+        if (newPosition.includes("take:key")) {
+          if (!this.keyIsTaken) {
+            console.log("take key"); // TODO make sound
+            this.keyIsTaken = true;
+            events.emit(ACTIONS.takeKey);
+          }
+        } else if (newPosition.includes("take:sword")) {
+          if (!this.swordIsTaken) {
+            console.log("take sword"); // TODO make sound
+            this.swordIsTaken = true;
+            events.emit(ACTIONS.takeSword);
+          }
+        }
+      } else {
+        // if sprite is moved, stop any automatic action
+        if (this.autoAction) {
+          console.log("stop automatic action");
+          clearTimeout(this.autoAction);
+          this.autoAction = undefined;
+        }
+        // switch to new position
+        this.changePosition(newPosition, events);
+      }
+    }
+    return ACTIONS.none;
+  }
+
+  tick(events) {
+    console.log("hero position", this.position, this.autoAction);
+    if (this.autoAction) {
+      const millis = Date.now() - this.autoActionHappened;
+      if (millis >= 1000) {
+        this.changePosition(this.autoAction, events);
+      }
+    }
+  }
+
 }
 
 export default Hero;
