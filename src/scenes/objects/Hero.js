@@ -1,3 +1,4 @@
+import { ACTIONS } from "../constants";
 
 class Hero {
   hideShow(visible) {
@@ -24,6 +25,7 @@ class Hero {
   }
 
   create(utils) {
+    this.autoAction = undefined;
     this.swordIsTaken = false;
     this.keyIsTaken = false;
     this.position = "pos1";
@@ -95,19 +97,23 @@ class Hero {
       ),
       pos3: utils.addHeroTo(
         {x: 80, y: 490, frame: 2},
-        {right: "pos4"}
+        {right: "pos4", noAction: "pos2"}
       ),
       pos4: utils.addHeroTo(
         {x: 130, y: 490, frame: 3},
-        {jump: "pos5"}
+        {jump: "pos5", left: "pos3"}
       ),
       pos5: utils.addHeroTo(
         {x: 110, y: 410, frame: 4},
-        {right: "pos6"}
+        {right: "pos6", noAction: "pos4"}
+      ),
+      pos5_1: utils.addHeroTo(
+        {x: 110, y: 410, frame: 4},
+        {right: "pos6", noAction: "pos4"}
       ),
       pos6: utils.addHeroTo(
         {x: 210, y: 450, frame: 5},
-        {right: "pos7", jump: "pos8"}
+        {right: "pos7", jump: "pos8", left: "pos5_1"}
       ),
       pos7: utils.addHeroTo(
         {x: 275, y: 590, frame: 6},
@@ -115,15 +121,19 @@ class Hero {
       ),
       pos8: utils.addHeroTo(
         {x: 275, y: 350, frame: 7},
-        {right: "pos9"}
+        {right: "pos9", noAction: "pos9"}
+      ),
+      pos8_1: utils.addHeroTo(
+        {x: 275, y: 350, frame: 7},
+        {noAction: "pos6"}
       ),
       pos9: utils.addHeroTo(
         {x: 300, y: 440, frame: 8},
-        {right: "pos10"}
+        {right: "pos10", left: "pos7", jump: "pos8_1"}
       ),
       pos10: utils.addHeroTo(
         {x: 360, y: 435, frame: 9},
-        {right: "pos11", jump: "pos12"}
+        {right: "pos11", jump: "pos12", left: "pos9"}
       ),
       pos11: utils.addHeroTo(
         {x: 390, y: 560, frame: 10},
@@ -131,27 +141,47 @@ class Hero {
       ),
       pos12: utils.addHeroTo(
         {x: 430, y: 370, frame: 11},
-        {}
+        { noAction: "pos13" }
+      ),
+      pos12_1: utils.addHeroTo(
+        {x: 430, y: 370, frame: 11},
+        { noAction: "pos10" }
       ),
       pos13: utils.addHeroTo(
         {x: 430, y: 460, frame: 12},
-        {}
+        {noAction: "pos14"}
+      ),
+      pos13_1: utils.addHeroTo(
+        {x: 430, y: 460, frame: 12},
+        {noAction: "pos12_1"}
       ),
       pos14: utils.addHeroTo(
         {x: 470, y: 520, frame: 13},
         {noAction: "pos15"}
       ),
+      pos14_1: utils.addHeroTo(
+        {x: 470, y: 520, frame: 13},
+        {noAction: "pos13_1"}
+      ),
       pos15: utils.addHeroTo(
         {x: 490, y: 430, frame: 14},
         {noAction: "pos16"}
+      ),
+      pos15_1: utils.addHeroTo(
+        {x: 490, y: 430, frame: 14},
+        {noAction: "pos14_1"}
       ),
       pos16: utils.addHeroTo(
         {x: 510, y: 360, frame: 15},
         {noAction: "pos17", right: "take:sword"}
       ),
+      pos16_1: utils.addHeroTo(
+        {x: 510, y: 360, frame: 15},
+        {noAction: "pos15_1", right: "take:sword"}
+      ),
       pos17: utils.addHeroTo(
         {x: 510, y: 260, frame: 16},
-        {left: "pos19", jump: "pos18"}
+        {left: "pos19", jump: "pos18", right: "pos16_1"}
       ),
       pos18: utils.addHeroTo(
         {x: 490, y: 190, frame: 17},
@@ -159,7 +189,7 @@ class Hero {
       ),
       pos19: utils.addHeroTo(
         {x: 420, y: 260, frame: 18},
-        {left: "pos21", jump: "pos20"}
+        {left: "pos21", jump: "pos20", right: "pos17"}
       ),
       pos20: utils.addHeroTo(
         {x: 390, y: 165, frame: 19},
@@ -167,15 +197,15 @@ class Hero {
       ),
       pos21: utils.addHeroTo(
         {x: 320, y: 260, frame: 20},
-        {left: "pos22"}
+        {left: "pos22", right: "pos19"}
       ),
       pos22: utils.addHeroTo(
         {x: 180, y: 245, frame: 21},
-        {left: "pos23"}
+        {left: "pos23", right: "pos21"}
       ),
       pos23: utils.addHeroTo(
         {x: 90, y: 245, frame: 22},
-        {up: "pos24"}
+        {up: "pos24", right: "pos22"}
       ),
       pos24: utils.addHeroTo(
         {x: 50, y: 130, frame: 23},
@@ -191,12 +221,80 @@ class Hero {
       ),
       pos27: utils.addHeroTo(
         {x: 490, y: 95, frame: 26},
-        {right: "openKey", left: "pos26"}
+        {right: "take:openKey", left: "pos26"}
       ),
     }
     this.allPositions = Object.keys(this.positions);
     this.allSwordPositions = Object.keys(this.swordPositions);
   };
+
+  changePosition(newPosition, events) {
+    this.autoAction = undefined;
+    console.log("Move to", newPosition);
+    if (newPosition === "pos15") {
+      events.emit(ACTIONS.platform2);
+    } else if (this.position === "pos15") {
+      events.emit(ACTIONS.platform2Leave);
+    }
+    this.positions[this.position].sprite.setVisible(false);
+    this.position = newPosition;
+    this.positions[this.position].sprite.setVisible(true);
+
+    // detect death position on new Position (fallen)
+    if (this.positions[newPosition].actions.death) {
+      events.emit(ACTIONS.death);
+    }
+    // detect future automatic action and set a timeout for it
+    if(this.positions[newPosition].actions.noAction) {
+      // this will happen when you don't push any other button
+      this.autoAction = this.positions[newPosition].actions.noAction;
+      console.log("auto action ", this.autoAction)
+      this.autoActionHappened = Date.now();
+    }
+  }
+
+  move(where, events) {
+    if (this.positions[this.position].actions[where]) {
+      const newPosition = this.positions[this.position].actions[where];
+
+      if (newPosition.includes("take:")) {
+        if (newPosition.includes("take:key")) {
+          if (!this.keyIsTaken) {
+            console.log("take key"); // TODO make sound
+            this.keyIsTaken = true;
+            events.emit(ACTIONS.takeKey);
+          }
+        } else if (newPosition.includes("take:sword")) {
+          if (!this.swordIsTaken) {
+            console.log("take sword"); // TODO make sound
+            this.swordIsTaken = true;
+            events.emit(ACTIONS.takeSword);
+          }
+        }
+      } else {
+        // if sprite is moved, stop any automatic action
+        if (this.autoAction) {
+          console.log("stop automatic action");
+          clearTimeout(this.autoAction);
+          this.autoAction = undefined;
+        }
+        // switch to new position
+        this.changePosition(newPosition, events);
+      }
+    }
+    return ACTIONS.none;
+  }
+
+  tick(events) {
+    console.log("hero position", this.position, this.autoAction);
+    if (this.autoAction) {
+      const millis = Date.now() - this.autoActionHappened;
+      if (millis >= 1000) {
+        this.changePosition(this.autoAction, events);
+      }
+    }
+  }
+
 }
 
 export default Hero;

@@ -8,6 +8,10 @@ const config = {
   type: Phaser.WEB_GL,
   height: 800,
   canvas,
+  fps: {
+    target: 10,
+    forceSetTimeOut: true
+  },
   physics: {
     default: 'arcade',
     arcade: {
