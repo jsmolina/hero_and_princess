@@ -15,6 +15,8 @@ class GameScene extends PointerBase {
   create() {
     this.events.on(ACTIONS.takeKey, this.keyHandler, this);
     this.events.on(ACTIONS.takeSword, this.swordHandler, this);
+    this.events.on(ACTIONS.platform2, this.inPlatform, this);
+    this.events.on(ACTIONS.platform2Leave, this.outPlatform, this);
 
     this.triggerTimer = this.time.addEvent({
         callback: this.ticker,
@@ -66,6 +68,13 @@ class GameScene extends PointerBase {
   swordHandler() {
     console.log("SwordHandler called");
     this.statics.takeSword();
+  }
+
+  inPlatform() {
+    console.log("In platform");
+  }
+  outPlatform() {
+    console.log("Out platform");
   }
 
   update(time, delta) {
