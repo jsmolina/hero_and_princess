@@ -23,6 +23,29 @@ class Enemies {
   create(utils) {
     this.position = "pos24";
     this.ballPos = undefined;
+
+    this.bird = {
+      pos1: utils.addOthers(
+        {x: 430, y: 365, frame: 11, visible: true, noAction: "pos2"},
+        {}
+      ),
+      pos2: utils.addOthers(
+        {x: 350, y: 380, frame: 12, visible: true},
+        {noAction: "pos3"},
+      ),
+      pos3: utils.addOthers(
+        {x: 310, y: 400, frame: 13, visible: true},
+        {noAction: "pos4"},
+      ),
+      pos4: utils.addOthers(
+        {x: 210, y: 380, frame: 14, visible: true},
+        {noAction: "pos5"},
+      ),
+      pos5: utils.addOthers(
+        {x: 100, y: 380, frame: 15, visible: true},
+        {},
+      ),
+    }
     this.monkey = {
       pos24: utils.addOthers(
         {x: 120, y: 130, frame: 20},

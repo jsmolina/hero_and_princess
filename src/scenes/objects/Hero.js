@@ -121,11 +121,11 @@ class Hero {
         {death: true}
       ),
       pos8: utils.addHeroTo(
-        {x: 275, y: 350, frame: 7},
+        {x: 265, y: 350, frame: 7},
         {right: "pos9", noAction: "pos9"}
       ),
       pos8_1: utils.addHeroTo(
-        {x: 275, y: 350, frame: 7},
+        {x: 265, y: 350, frame: 7},
         {noAction: "pos6"}
       ),
       pos9: utils.addHeroTo(
