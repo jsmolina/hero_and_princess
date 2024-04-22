@@ -9,41 +9,66 @@ class Enemies {
     this.allBallPositions.forEach((pos) => {
       this.ball[pos].sprite.setVisible(visible);
     });
+    this.allBirdPositions.forEach((pos) => {
+      this.bird[pos].sprite.setVisible(visible);
+    });
   }
 
   start() {
+    this.reseting = false;
     this.hideShow(false);
     // rest
+    this.birdPos = "pos1";
+    this.bird.pos1.sprite.setVisible(true);
   }
 
   reset() {
     this.hideShow(true);
+    this.reseting = true;
+  }
+
+  tick() {
+    if (this.reseting) {
+      return;
+    }
+    // move bird
+    console.log(this.birdPos, this.bird);
+    this.bird[this.birdPos].sprite.setVisible(false);
+    const newPosition = this.bird[this.birdPos].actions.noAction;
+    if (!newPosition) {
+      console.log("New position empty", this.bird[this.birdPos].actions);
+      return;
+    }
+    this.birdPos = newPosition;
+    this.bird[newPosition].sprite.setVisible(true);
   }
 
   create(utils) {
+    this.reseting = false;
     this.position = "pos24";
     this.ballPos = undefined;
+    this.birdPos = "pos1";
 
     this.bird = {
       pos1: utils.addOthers(
-        {x: 430, y: 365, frame: 11, visible: true, noAction: "pos2"},
-        {}
+        {x: 430, y: 365, frame: 11},
+        {noAction: "pos2"}
       ),
       pos2: utils.addOthers(
-        {x: 350, y: 380, frame: 12, visible: true},
+        {x: 350, y: 380, frame: 12},
         {noAction: "pos3"},
       ),
       pos3: utils.addOthers(
-        {x: 310, y: 400, frame: 13, visible: true},
+        {x: 310, y: 400, frame: 13},
         {noAction: "pos4"},
       ),
       pos4: utils.addOthers(
-        {x: 210, y: 380, frame: 14, visible: true},
+        {x: 210, y: 380, frame: 14},
         {noAction: "pos5"},
       ),
       pos5: utils.addOthers(
-        {x: 100, y: 380, frame: 15, visible: true},
-        {},
+        {x: 100, y: 380, frame: 15},
+        {noAction: "pos1"},
       ),
     }
     this.monkey = {
@@ -156,6 +181,7 @@ class Enemies {
     this.allMonkeyPositions = Object.keys(this.monkey);
     this.allMonkeyArmPositions = Object.keys(this.monkeyArm);
     this.allBallPositions = Object.keys(this.ball);
+    this.allBirdPositions = Object.keys(this.bird);
   };
 }
 

@@ -37,8 +37,8 @@ class GameScene extends PointerBase {
     this.hero = new Hero();
     this.hero.create(utils);
 
-    this.enemy = new Enemies();
-    this.enemy.create(utils);
+    this.enemies = new Enemies();
+    this.enemies.create(utils);
 
     this.statics = new Statics();
     this.statics.create(utils);
@@ -58,6 +58,7 @@ class GameScene extends PointerBase {
     // todo: check game started
     this.statics.tick(this.events);
     this.hero.tick(this.events);
+    this.enemies.tick();
   }
 
   keyHandler() {
@@ -96,14 +97,14 @@ class GameScene extends PointerBase {
       console.log("Reset pressed");
       if (!this.reseted) {
         this.hero.reset();
-        this.enemy.reset();
+        this.enemies.reset();
         this.statics.reset();
         this.princess.reset();
         this.reseted = true;
         setTimeout(() => {
           this.hero.start();
           this.princess.start();
-          this.enemy.start();
+          this.enemies.start();
           this.statics.start();
           this.reseted = false;
         }, 2000);
