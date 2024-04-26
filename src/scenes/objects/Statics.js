@@ -3,11 +3,19 @@ class Statics {
 
   }
   start() {
+    this.reseting = false;
     this.objects.key.sprite.setVisible(true);
     this.objects.sword.sprite.setVisible(true);
+    this.platform2Pos = "pos1";
+    this.platform2["pos1"].sprite.setVisible(true);
+    this.platform2["pos2"].sprite.setVisible(false);
+    this.showHideFriendPlatform(false);
   }
 
   tick() {
+    if (this.reseting) {
+      return;
+    }
     this.platform2[this.platform2Pos].sprite.setVisible(false);
     const newPosition = this.platform2[this.platform2Pos].actions.noAction;
     this.platform2Pos = newPosition;
@@ -22,18 +30,21 @@ class Statics {
     this.objects.sword.sprite.setVisible(false);
   }
 
+  showHideFriendPlatform(visible) {
+    this.friendPlatform.pos1.sprite.setVisible(visible);
+  }
+
   reset() {
+    this.reseting = true;
     this.objects.key.sprite.setVisible(true);
     this.objects.sword.sprite.setVisible(true);
-    if (this.platformTimeouts) {
-      clearTimeout(this.platformTimeouts);
-      this.platformTimeouts = undefined;
-    }
+    this.platform2["pos1"].sprite.setVisible(true);
+    this.platform2["pos2"].sprite.setVisible(true);
+    this.showHideFriendPlatform(true);
   }
 
   create(utils) {
-    this.platformTimeouts = undefined;
-    this.friendPlatformPos = "pos2";
+    this.reseting = false;
     this.platform2Pos = "pos1";
 
     this.snake = utils.addOthers(

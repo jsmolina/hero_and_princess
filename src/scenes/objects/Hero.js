@@ -29,6 +29,7 @@ class Hero {
     this.swordIsTaken = false;
     this.keyIsTaken = false;
     this.position = "pos1";
+    this.currentSword = "";
     this.lives = 3;
     // this should be only visible is sword is taken!
     this.swordPositions = {
@@ -120,11 +121,11 @@ class Hero {
         {death: true}
       ),
       pos8: utils.addHeroTo(
-        {x: 275, y: 350, frame: 7},
+        {x: 265, y: 350, frame: 7},
         {right: "pos9", noAction: "pos9"}
       ),
       pos8_1: utils.addHeroTo(
-        {x: 275, y: 350, frame: 7},
+        {x: 265, y: 350, frame: 7},
         {noAction: "pos6"}
       ),
       pos9: utils.addHeroTo(
@@ -209,15 +210,15 @@ class Hero {
       ),
       pos24: utils.addHeroTo(
         {x: 50, y: 130, frame: 23},
-        {right: "pos25", down: "pos23"}
+        {right: "pos25", down: "pos23", jump: "fight:sword"}
       ),
       pos25: utils.addHeroTo(
         {x: 220, y: 120, frame: 24},
-        {right: "pos26", left: "pos24"}
+        {right: "pos26", left: "pos24", jump: "fight:sword"}
       ),
       pos26: utils.addHeroTo(
         {x: 360, y: 80, frame: 25},
-        {right: "pos27", left: "pos25"}
+        {right: "pos27", left: "pos25", jump: "fight:sword"}
       ),
       pos27: utils.addHeroTo(
         {x: 490, y: 95, frame: 26},
@@ -228,14 +229,38 @@ class Hero {
     this.allSwordPositions = Object.keys(this.swordPositions);
   };
 
+  changeSwordPositionIfApplies(oldPosition, newPosition) {
+    if (this.allSwordPositions.includes(this.currentSword)) {
+      this.swordPositions[this.currentSword].sprite.setVisible(false);
+    }
+    if (this.swordIsTaken && this.allSwordPositions.includes(newPosition)) {
+      this.currentSword = newPosition;
+      console.log("up and with sword", newPosition);
+      this.swordPositions[this.currentSword].sprite.setVisible(true);
+    }
+  }
+
+  swordFight(currentPosition) {
+    console.log("swordFight");
+    if (!this.currentSword.includes(currentPosition)) {
+      console.log("not includes currentPosition", this.currentSword, currentPosition)
+      this.currentSword = currentPosition;
+    }
+    this.swordPositions[this.currentSword].sprite.setVisible(false);
+    this.currentSword = this.swordPositions[this.currentSword].actions.jump
+    console.log("set to ", this.currentSword)
+    this.swordPositions[this.currentSword].sprite.setVisible(true);
+  }
+
   changePosition(newPosition, events) {
     this.autoAction = undefined;
     console.log("Move to", newPosition);
-    if (newPosition === "pos15") {
-      events.emit(ACTIONS.platform2);
-    } else if (this.position === "pos15") {
-      events.emit(ACTIONS.platform2Leave);
+    if (newPosition === "pos14"|| newPosition === "pos14_1") {
+      events.emit(ACTIONS.friendPlatform);
+    } else if (this.position === "pos14" || this.position === "pos14_1") {
+      events.emit(ACTIONS.friendPlatformLeave);
     }
+    this.changeSwordPositionIfApplies(this.position, newPosition);
     this.positions[this.position].sprite.setVisible(false);
     this.position = newPosition;
     this.positions[this.position].sprite.setVisible(true);
@@ -271,6 +296,9 @@ class Hero {
             events.emit(ACTIONS.takeSword);
           }
         }
+      } else if (newPosition === "fight:sword") {
+        console.log("fight sword");
+        this.swordFight(this.position);
       } else {
         // if sprite is moved, stop any automatic action
         if (this.autoAction) {
