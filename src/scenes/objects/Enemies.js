@@ -27,12 +27,7 @@ class Enemies {
     this.reseting = true;
   }
 
-  tick() {
-    if (this.reseting) {
-      return;
-    }
-    // move bird
-    console.log(this.birdPos, this.bird);
+  moveBird() {
     this.bird[this.birdPos].sprite.setVisible(false);
     const newPosition = this.bird[this.birdPos].actions.noAction;
     if (!newPosition) {
@@ -43,9 +38,35 @@ class Enemies {
     this.bird[newPosition].sprite.setVisible(true);
   }
 
+  moveMonkey() {
+    // TODO react to swordFight
+    // TODO react to get
+    const currentNode = this.monkeyFsm[this.monkeyPos];
+    console.log("FSM", currentNode.position, this.monkeyPos);
+    this.monkey[currentNode.position].sprite.setVisible(false);
+    if (currentNode.arm) {
+      this.monkeyArm[currentNode.arm].sprite.setVisible(false);
+    }
+    this.monkeyPos = (this.monkeyPos + 1) % this.monkeyFsm.length;
+
+    const newNode = this.monkeyFsm[this.monkeyPos];
+    this.monkey[newNode.position].sprite.setVisible(true);
+    if (newNode.arm) {
+      this.monkeyArm[newNode.arm].sprite.setVisible(true);
+    }
+  }
+
+  tick() {
+    if (this.reseting) {
+      return;
+    }
+    this.moveBird();
+    this.moveMonkey();
+  }
+
   create(utils) {
     this.reseting = false;
-    this.position = "pos24";
+    this.monkeyPos = 0;
     this.ballPos = undefined;
     this.birdPos = "pos1";
 
@@ -72,12 +93,38 @@ class Enemies {
       ),
     }
     this.monkeyFsm = [
-      {pos: "left", arm: ""},
-      {pos: "left", arm: ""}
+      {position: "left", arm: "leftTake"},
+      {position: "left", arm: "leftDrop"},
+      {position: "middle", arm: "middleTake"},
+      {position: "middle", arm: "middleDrop"},
+      {position: "left", arm: "leftTake"},
+      {position: "left", arm: "leftDrop"},
+      {position: "middle", arm: "middleTake"},
+      {position: "middle", arm: "middleDrop"},
+      {position: "left", arm: "leftDrop"},
+      {position: "left", arm: "leftDrop"},
+      {position: "middle", arm: "middleDrop"},
+      {position: "middle", arm: "middleDrop"},
+      {position: "left", arm: "leftTake"},
+      {position: "left", arm: "leftDrop"},
+      {position: "middle", arm: "middleTake"},
+      {position: "middle", arm: "middleDrop"},
+      {position: "right", arm: ""},
+      {position: "right", arm: ""},
+      {position: "middle", arm: "middleDrop"},
+      {position: "middle", arm: "middleDrop"},
+      {position: "left", arm: "leftDrop"},
+      {position: "left", arm: "leftDrop"},
+      {position: "middle", arm: "middleTake"},
+      {position: "middle", arm: "middleDrop"},
+      {position: "middle", arm: "middleTake"},
+      {position: "middle", arm: "middleDrop"},
+      {position: "middle", arm: "middleTake"},
+      {position: "middle", arm: "middleDrop"},
     ]
     this.monkey = {
       left: utils.addOthers(
-        {x: 120, y: 130, frame: 20, visible: false},
+        {x: 120, y: 130, frame: 20},
         {}
       ),
       middle: utils.addOthers(
@@ -85,10 +132,11 @@ class Enemies {
         {}
       ),
       right: utils.addOthers(
-        {x: 430, y: 55, frame: 22, scale: 0.22, visible: true},
+        {x: 430, y: 55, frame: 22, scale: 0.22},
         {}
       ),
     };
+
     this.monkeyArm = {
       leftTake: utils.addOthers(
         {x: 170, y: 135, frame: 34},
@@ -124,7 +172,7 @@ class Enemies {
         {noAction: "right_2"}
       ),
       rightTake: utils.addOthers(
-        {x: 470, y: 82, frame: 43, scale: 0.3, visible: true},
+        {x: 470, y: 82, frame: 43, scale: 0.3},
         {noAction: "right"}
       ),
     };
@@ -142,15 +190,15 @@ class Enemies {
         {noAction: "downScreenBottom"}
       ),
       topScreenRight3: utils.addOthers(
-        {x: 580, y: 340, frame: 37, visible: false},
+        {x: 580, y: 340, frame: 37},
         {}
       ),
       topScreenRight2: utils.addOthers(
-        {x: 480, y: 340, frame: 37, visible: false},
+        {x: 480, y: 340, frame: 37},
         {}
       ),
       topScreenRight1: utils.addOthers(
-        {x: 385, y: 330, frame: 37, visible: false},
+        {x: 385, y: 330, frame: 37},
         {}
       ),
       topScreenRight0: utils.addOthers(
@@ -158,27 +206,27 @@ class Enemies {
         {}
       ),
       topScreenFallsMiddle1: utils.addOthers(
-        {x: 285, y: 230, frame: 39, visible: false},
+        {x: 285, y: 230, frame: 39},
         {noAction: "topScreenFallsMiddle2"}
       ),
       topScreenFallsMiddle2: utils.addOthers(
-        {x: 285, y: 280, frame: 37, visible: false},
+        {x: 285, y: 280, frame: 37},
         {noAction: "downScreenTop"}
       ),
       topScreenLeft1: utils.addOthers(
-        {x: 255, y: 310, frame: 37, visible: false},
+        {x: 255, y: 310, frame: 37},
         {}
       ),
       topScreenLeft2: utils.addOthers(
-        {x: 145, y: 320, frame: 37, visible: false},
+        {x: 145, y: 320, frame: 37},
         {}
       ),
       topScreenFallsLeft: utils.addOthers(
-        {x: 170, y: 250, frame: 39, visible: false},
+        {x: 170, y: 250, frame: 39},
         {}
       ),
       topScreenOverSkull: utils.addOthers(
-        {x: 45, y: 260, frame: 39, visible: false},
+        {x: 45, y: 260, frame: 39},
         {}
       ),
 
