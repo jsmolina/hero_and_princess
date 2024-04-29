@@ -54,6 +54,15 @@ class Enemies {
     if (newNode.arm) {
       this.monkeyArm[newNode.arm].sprite.setVisible(true);
     }
+    if (newNode.drop) {
+      console.log("DROP! ", newNode.position)
+    }
+  }
+
+  moveBall() {
+    if (!this.ballPos) {
+      return;
+    }
   }
 
   tick() {
@@ -62,6 +71,7 @@ class Enemies {
     }
     this.moveBird();
     this.moveMonkey();
+    this.moveBall();
   }
 
   create(utils) {
@@ -91,76 +101,83 @@ class Enemies {
         {x: 100, y: 380, frame: 15},
         {noAction: "pos1"},
       ),
-    }
+    };
+
+    this.ballFromArm = {
+      left: "topScreenFallsLeft",
+      middle: "topScreenFallsMiddle1",
+    };
+
     this.monkeyFsm = [
-      {position: "left", arm: "leftTake"},
-      {position: "left", arm: "leftDrop"},
-      {position: "middle", arm: "middleTake"},
-      {position: "middle", arm: "middleDrop"},
-      {position: "left", arm: "leftTake"},
-      {position: "left", arm: "leftDrop"},
-      {position: "middle", arm: "middleTake"},
-      {position: "middle", arm: "middleDrop"},
-      {position: "left", arm: "leftDrop"},
-      {position: "left", arm: "leftDrop"},
-      {position: "middle", arm: "middleDrop"},
-      {position: "middle", arm: "middleDrop"},
-      {position: "left", arm: "leftTake"},
-      {position: "left", arm: "leftDrop"},
-      {position: "middle", arm: "middleTake"},
-      {position: "middle", arm: "middleDrop"},
-      {position: "right", arm: ""},
-      {position: "right", arm: ""},
-      {position: "middle", arm: "middleDrop"},
-      {position: "middle", arm: "middleDrop"},
-      {position: "left", arm: "leftDrop"},
-      {position: "left", arm: "leftDrop"},
-      {position: "middle", arm: "middleTake"},
-      {position: "middle", arm: "middleDrop"},
-      {position: "middle", arm: "middleTake"},
-      {position: "middle", arm: "middleDrop"},
-      {position: "middle", arm: "middleTake"},
-      {position: "middle", arm: "middleDrop"},
-    ]
+      {position: "left", arm: "leftTake", drop: false},
+      {position: "left", arm: "leftDrop", drop: true},
+      {position: "middle", arm: "middleTake", drop: false},
+      {position: "middle", arm: "middleDrop", drop: true},
+      {position: "left", arm: "leftTake", drop: false},
+      {position: "left", arm: "leftDrop", drop: true},
+      {position: "middle", arm: "middleTake", drop: false},
+      {position: "middle", arm: "middleDrop", drop: true},
+      {position: "left", arm: "leftDrop", drop: false},
+      {position: "left", arm: "leftDrop", drop: false},
+      {position: "middle", arm: "middleDrop", drop: false},
+      {position: "middle", arm: "middleDrop", drop: false},
+      {position: "left", arm: "leftTake", drop: false},
+      {position: "left", arm: "leftDrop", drop: true},
+      {position: "middle", arm: "middleTake", drop: false},
+      {position: "middle", arm: "middleDrop", drop: true},
+      {position: "right", arm: "", drop: false},
+      {position: "right", arm: "", drop: false},
+      {position: "middle", arm: "middleDrop", drop: false},
+      {position: "middle", arm: "middleDrop", drop: false},
+      {position: "left", arm: "leftDrop", drop: false},
+      {position: "left", arm: "leftDrop", drop: false},
+      {position: "middle", arm: "middleTake", drop: false},
+      {position: "middle", arm: "middleDrop", drop: true},
+      {position: "middle", arm: "middleTake", drop: false},
+      {position: "middle", arm: "middleDrop", drop: true},
+      {position: "middle", arm: "middleTake", drop: false},
+      {position: "middle", arm: "middleDrop", drop: true},
+    ];
+
     this.monkey = {
       left: utils.addOthers(
-        {x: 120, y: 130, frame: 20},
+        {x: 110, y: 130, frame: 20},
         {}
       ),
       middle: utils.addOthers(
-        {x: 285, y: 100, frame: 21},
+        {x: 265, y: 100, frame: 21},
         {}
       ),
       right: utils.addOthers(
-        {x: 430, y: 55, frame: 22, scale: 0.22},
+        {x: 420, y: 55, frame: 22},
         {}
       ),
     };
 
     this.monkeyArm = {
       leftTake: utils.addOthers(
-        {x: 170, y: 135, frame: 34},
+        {x: 160, y: 135, frame: 34},
         {}
       ),
       leftDrop: utils.addOthers(
-        {x: 194, y: 175, frame: 33},
+        {x: 184, y: 175, frame: 33},
         {}
       ),
       leftPunch: utils.addOthers(
-        {x: 115, y: 150, frame: 35},
+        {x: 105, y: 150, frame: 35},
         {}
       ),
       middlePunch: utils.addOthers(
-        {x: 270, y: 125, frame: 35},
+        {x: 250, y: 125, frame: 35},
         {}
       ),
       middleDrop: utils.addOthers(
-        {x: 342, y: 145, frame: 33},
+        {x: 322, y: 145, frame: 33},
         {}
       ),
       middleTake:
         utils.addOthers(
-          {x: 320, y: 110, frame: 34},
+          {x: 300, y: 110, frame: 34},
           {}
       ),
       rightPunch: utils.addOthers(

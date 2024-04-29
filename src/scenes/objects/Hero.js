@@ -54,31 +54,31 @@ class Hero {
       pos23: utils.addOthers({x: 78, y: 265, frame: 26},
         {up: "pos24"}
       ),
-      // right only if monkey is damaged
+      // TODO: right only if monkey is damaged
       pos24: utils.addOthers(
-        {x: 90, y: 130, frame: 27},
+        {x: 80, y: 130, frame: 27},
         {right: "pos25", down: "pos23", jump: "pos24_2"}
       ),
       pos24_2: utils.addOthers(
-        {x: 105, y: 170, frame: 28},
+        {x: 95, y: 170, frame: 28},
         {right: "pos25", down: "pos23", jump: "pos24"}
       ),
       // right only if monkey is damaged
       pos25: utils.addOthers(
-        {x: 240, y: 115, frame: 30},
+        {x: 220, y: 115, frame: 30},
         {right: "pos26", left: "pos24", jump: "pos25_2"}
       ),
       pos25_2: utils.addOthers(
-        {x: 263, y: 159, frame: 29},
+        {x: 243, y: 159, frame: 29},
         {right: "pos26", left: "pos24", jump: "pos25"}
       ),
       // right only if monkey is damaged
       pos26: utils.addOthers(
-        {x: 390, y: 78, frame: 32},
+        {x: 380, y: 78, frame: 32},
         {right: "pos27", left: "pos25", jump: "pos26_2"}
       ),
       pos26_2: utils.addOthers(
-        {x: 410, y: 120, frame: 31},
+        {x: 400, y: 120, frame: 31},
         {right: "pos27", left: "pos25", jump: "pos26"}
       ),
       // opened only if key is owned
@@ -209,15 +209,15 @@ class Hero {
         {up: "pos24", right: "pos22"}
       ),
       pos24: utils.addHeroTo(
-        {x: 50, y: 130, frame: 23},
+        {x: 40, y: 130, frame: 23},
         {right: "pos25", down: "pos23", jump: "fight:sword"}
       ),
       pos25: utils.addHeroTo(
-        {x: 220, y: 120, frame: 24},
+        {x: 200, y: 120, frame: 24},
         {right: "pos26", left: "pos24", jump: "fight:sword"}
       ),
       pos26: utils.addHeroTo(
-        {x: 360, y: 80, frame: 25},
+        {x: 350, y: 80, frame: 25},
         {right: "pos27", left: "pos25", jump: "fight:sword"}
       ),
       pos27: utils.addHeroTo(

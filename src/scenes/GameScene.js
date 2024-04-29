@@ -53,7 +53,9 @@ class GameScene extends PointerBase {
 
     // Create a helper object for our arrow keys
     this.cursors = this.input.keyboard.createCursorKeys();
+    this.takeKeySound = this.sound.add('takeKey');
   }
+
   ticker() {
     // todo: check game started
     this.statics.tick(this.events);
@@ -63,6 +65,7 @@ class GameScene extends PointerBase {
 
   keyHandler() {
     console.log("KeyHandler called");
+    this.takeKeySound.play();
     this.statics.takeKey();
   }
 
