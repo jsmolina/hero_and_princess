@@ -16,6 +16,7 @@ class BootScene extends Scene {
       {frameWidth: 315, frameHeight: 406}
     );
     this.load.audio('takeKey', [ 'assets/sounds/takeKey.ogg' ]);
+    this.load.audio('takeSword', [ 'assets/sounds/takeSword.ogg' ]);
     /*this.load.spritesheet('wednesday', 'assets/wednesday_sheet2.png', {frameWidth: 50, frameHeight: 51});
     this.load.spritesheet('arrow', 'assets/arrow.png', {frameWidth: 60, frameHeight: 60});
     this.load.image('background', './assets/instituto.jpeg');
