@@ -7,6 +7,8 @@ const ACTIONS = {
   takeKey: Symbol(),
   takeSword: Symbol(),
   death: Symbol(),
+  deathEnd: Symbol(),
+  noLives: Symbol(),
   friendPlatform: Symbol(),
   friendPlatformLeave: Symbol(),
   none: false,

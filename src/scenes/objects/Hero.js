@@ -12,7 +12,7 @@ class Hero {
 
   start() {
       this.hideShow(false);
-
+      this.dead = false;
       this.position = "pos1";
       this.lives = 3;
       this.keyIsTaken = false;
@@ -22,12 +22,36 @@ class Hero {
 
   reset() {
     this.hideShow(true);
+    this.dead = false;
+  }
+
+  death() {
+    this.dead = true;
+    this.deadFlashCounts = 14;
+    this.lives--;
+  }
+
+  tryAgain(events) {
+    if (!this.dead) {return false;}
+    if (this.lives === 0) {
+      events.emit(ACTIONS.noLives);
+      return;
+    }
+    this.hideShow(false);
+    this.dead = false;
+    this.position = "pos1";
+    this.keyIsTaken = false;
+    this.swordIsTaken = false;
+    this.positions.pos1.sprite.setVisible(true);
+    return true;
   }
 
   create(utils) {
     this.autoAction = undefined;
     this.swordIsTaken = false;
     this.keyIsTaken = false;
+    this.dead = false;
+    this.deadFlashCounts = 0;
     this.position = "pos1";
     this.currentSword = "";
     this.lives = 3;
@@ -114,7 +138,7 @@ class Hero {
       ),
       pos6: utils.addHeroTo(
         {x: 210, y: 450, frame: 5},
-        {right: "pos7", jump: "pos8", left: "pos5_1"}
+        {jump: "pos8", left: "pos5_1"}
       ),
       pos7: utils.addHeroTo(
         {x: 275, y: 590, frame: 6},
@@ -267,6 +291,9 @@ class Hero {
 
     // detect death position on new Position (fallen)
     if (this.positions[newPosition].actions.death) {
+      this.dead = true;
+      this.deadFlashCounts = 14;
+      this.lives--;
       events.emit(ACTIONS.death);
     }
     // detect future automatic action and set a timeout for it
@@ -315,9 +342,16 @@ class Hero {
 
   tick(events) {
     console.log("hero position", this.position, this.autoAction);
+    if (this.dead && this.deadFlashCounts > 0) {
+      this.deadFlashCounts--;
+      this.positions[this.position].sprite.setVisible((this.deadFlashCounts % 2) === 0);
+      if (this.deadFlashCounts === 0) {
+        events.emit(ACTIONS.deathEnd);
+      }
+    }
     if (this.autoAction) {
       const millis = Date.now() - this.autoActionHappened;
-      if (millis >= 1000) {
+      if (millis >= 800) {
         this.changePosition(this.autoAction, events);
       }
     }

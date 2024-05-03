@@ -17,8 +17,17 @@ class GameScene extends PointerBase {
     this.events.on(ACTIONS.takeSword, this.swordHandler, this);
     this.events.on(ACTIONS.friendPlatform, this.inPlatform, this);
     this.events.on(ACTIONS.friendPlatformLeave, this.outPlatform, this);
+    this.events.on(ACTIONS.death, this.deathStarts, this);
+    this.events.on(ACTIONS.deathEnd, this.deathEnds, this);
 
     this.triggerTimer = this.time.addEvent({
+        callback: this.heroTicker,
+        callbackScope: this,
+        delay: 250, // 1000 = 1 second
+        loop: true
+    });
+
+    this.normalTimer = this.time.addEvent({
         callback: this.ticker,
         callbackScope: this,
         delay: 1000, // 1000 = 1 second
@@ -53,15 +62,21 @@ class GameScene extends PointerBase {
 
     // Create a helper object for our arrow keys
     this.cursors = this.input.keyboard.createCursorKeys();
+    this.enterKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
+    // init sounds
     this.takeKeySound = this.sound.add('takeKey');
     this.takeSwordSound = this.sound.add('takeSword');
+    this.deathSound = this.sound.add('death');
+    this.keyPressSound = this.sound.add('keyPress');
   }
 
   ticker() {
     // todo: check game started
     this.statics.tick(this.events);
-    this.hero.tick(this.events);
     this.enemies.tick();
+  }
+  heroTicker() {
+    this.hero.tick(this.events);
   }
 
   keyHandler() {
@@ -83,6 +98,17 @@ class GameScene extends PointerBase {
     this.statics.showHideFriendPlatform(false);
   }
 
+  deathStarts() {
+    this.deathSound.play();
+  }
+
+  deathEnds() {
+    // TODO flashing ends, a new head appears on top, hero retries
+    this.statics.start();
+    this.enemies.start();
+    this.hero.tryAgain(this.events);
+  }
+
   update(time, delta) {
     super.update(time, delta);
     /*this.frameTime += delta
@@ -92,6 +118,9 @@ class GameScene extends PointerBase {
         // Code that relies on a consistent 60hz update
     }
     console.log("t", time);*/
+    if (this.cursors.down.isDown || this.cursors.up.isDown || this.cursors.left.isDown || this.cursors.right.isDown) {
+      this.keyPressSound.play();
+    }
 
     if (this.cursors.shift.isDown) {
       this.reseting = true;
