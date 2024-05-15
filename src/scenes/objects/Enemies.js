@@ -1,64 +1,66 @@
+import { ACTIONS } from "../constants";
+
 class Enemies {
   hideShow(visible) {
-    this.allMonkeyPositions.forEach((pos) => {
-      this.monkey[pos].sprite.setVisible(visible);
+    this._allMonkeyPositions.forEach((pos) => {
+      this._monkey[pos].sprite.setVisible(visible);
     });
-    this.allMonkeyArmPositions.forEach((pos) => {
-      this.monkeyArm[pos].sprite.setVisible(visible);
+    this._allMonkeyArmPositions.forEach((pos) => {
+      this._monkeyArm[pos].sprite.setVisible(visible);
     });
-    this.allBallPositions.forEach((pos) => {
-      this.ball[pos].sprite.setVisible(visible);
+    this._allBallPositions.forEach((pos) => {
+      this._ball[pos].sprite.setVisible(visible);
     });
-    this.allBirdPositions.forEach((pos) => {
-      this.bird[pos].sprite.setVisible(visible);
+    this._allBirdPositions.forEach((pos) => {
+      this._bird[pos].sprite.setVisible(visible);
     });
   }
 
   start() {
-    this.reseting = false;
+    this._reseting = false;
+    this._pause = false;
     this.hideShow(false);
     // rest
-    this.birdPos = "pos1";
-    this.bird.pos1.sprite.setVisible(true);
+    this._birdPos = "pos1";
+    this._bird.pos1.sprite.setVisible(true);
   }
 
   reset() {
     this.hideShow(true);
-    this.reseting = true;
+    this._reseting = true;
   }
 
   moveBird(events, heroPos) {
-    this.bird[this.birdPos].sprite.setVisible(false);
-    const newPosition = this.bird[this.birdPos].actions.noAction;
+    this._bird[this._birdPos].sprite.setVisible(false);
+    const newPosition = this._bird[this._birdPos].actions.noAction;
     if (!newPosition) {
-      console.log("New position empty", this.bird[this.birdPos].actions);
+      console.log("New position empty", this._bird[this._birdPos].actions);
       return;
     }
-    this.birdPos = newPosition;
-    this.bird[newPosition].sprite.setVisible(true);
+    this._birdPos = newPosition;
+    this._bird[newPosition].sprite.setVisible(true);
   }
 
   moveMonkey(events, heroPos) {
     // TODO react to swordFight
     // TODO react to get
-    const currentNode = this.monkeyFsm[this.monkeyPos];
-    console.log("FSM", currentNode.position, this.monkeyPos);
-    this.monkey[currentNode.position].sprite.setVisible(false);
+    const currentNode = this._monkeyFsm[this._monkeyPos];
+    console.log("FSM", currentNode.position, this._monkeyPos);
+    this._monkey[currentNode.position].sprite.setVisible(false);
     if (currentNode.arm) {
-      this.monkeyArm[currentNode.arm].sprite.setVisible(false);
+      this._monkeyArm[currentNode.arm].sprite.setVisible(false);
     }
-    this.monkeyPos = (this.monkeyPos + 1) % this.monkeyFsm.length;
+    this._monkeyPos = (this._monkeyPos + 1) % this._monkeyFsm.length;
 
-    const newNode = this.monkeyFsm[this.monkeyPos];
-    this.monkey[newNode.position].sprite.setVisible(true);
+    const newNode = this._monkeyFsm[this._monkeyPos];
+    this._monkey[newNode.position].sprite.setVisible(true);
     if (newNode.arm) {
-      this.monkeyArm[newNode.arm].sprite.setVisible(true);
+      this._monkeyArm[newNode.arm].sprite.setVisible(true);
     }
 
     // no more than two balls at once
     if (newNode.drop) {
-      console.log("DROP! ", newNode.position, this.isHeroOnBottom(heroPos))
-      // if !this.ballPos maybe? wait?
+      // if !this._ballPos maybe? wait?
       const ballFsmPositionFromArm = this.isHeroOnBottom(heroPos) ? {
         left: "hBtopScreenFallsLeft",
         middle: "hBtopScreenFallsMiddle1",
@@ -67,35 +69,32 @@ class Enemies {
         middle: "hTtopScreenFallsMiddle1",
       };
 
-      if (newNode.position === "left" && !this.leftBallPos) {
-        this.leftBallPos = ballFsmPositionFromArm[newNode.position];
-        this.ball[this.leftBallPos].sprite.setVisible(true);
-      } else if (newNode.position === "middle" && !this.middleBallPos) {
-        this.middleBallPos = ballFsmPositionFromArm[newNode.position];
-        this.ball[this.middleBallPos].sprite.setVisible(true);
+      if (newNode.position === "left" && !this._leftBallPos) {
+        this._leftBallPos = ballFsmPositionFromArm[newNode.position];
+        this._ball[this._leftBallPos].sprite.setVisible(true);
+      } else if (newNode.position === "middle" && !this._middleBallPos) {
+        this._middleBallPos = ballFsmPositionFromArm[newNode.position];
+        this._ball[this._middleBallPos].sprite.setVisible(true);
       }
     }
   }
 
   _moveBallTo(events, heroPos, newPos) {
     if (newPos) {
-      console.log("moving ball",newPos, this.ball[newPos]);
-      const actualNode = this.ball[newPos];
+      const actualNode = this._ball[newPos];
       if (!actualNode) {
         console.warn("no actualNode found for ", newPos);
         return;
       }
-      console.warn("Hiding ", newPos);
       actualNode.sprite.setVisible(false);
       const noAction = actualNode.actions.noAction;
-      const noActionPos = noAction.length < 2 ? noAction : noAction[Math.floor(Math.random() * noAction.length)];
-      console.log("NoActionPos ", noActionPos);
+      const noActionPos = noAction.length < 2 ? noAction[0] : noAction[Math.floor(Math.random() * noAction.length)];
       if (noActionPos) {
-        if(!this.ball[noActionPos]) {
+        if(!this._ball[noActionPos]) {
           console.warn("no automatic node found", newPos);
           return;
         }
-        this.ball[noActionPos].sprite.setVisible(true);
+        this._ball[noActionPos].sprite.setVisible(true);
       }
       return noActionPos;
     }
@@ -103,17 +102,30 @@ class Enemies {
   }
 
   moveBall(events, heroPos) {
-    this.middleBallPos = this._moveBallTo(events, heroPos, this.middleBallPos);
-    this.leftBallPos = this._moveBallTo(events, heroPos, this.leftBallPos);
+    this._middleBallPos = this._moveBallTo(events, heroPos, this._middleBallPos);
+    this._leftBallPos = this._moveBallTo(events, heroPos, this._leftBallPos);
+  }
+
+  checkBallDeaths(events, heroPos) {
+    if(this._middleBallPos && this._ball[this._middleBallPos] && this._ball[this._middleBallPos].actions.death) {
+      if (this._ball[this._middleBallPos].actions.death.includes(heroPos)) {
+        // todo two ticks maybe?
+        console.warn("Hero death!!");
+        events.emit(ACTIONS.death);
+      }
+    }
   }
 
   tick(events, heroPos) {
-    if (this.reseting) {
+    if (this._reseting || this._pause) {
       return;
     }
+    this.checkBallDeaths(events, heroPos);
     this.moveBird(events, heroPos);
     this.moveMonkey(events, heroPos);
     this.moveBall(events, heroPos);
+    // deads
+    console.log("deads", this._middleBallPos, heroPos);
   }
 
   isHeroOnBottom(heroPos) {
@@ -125,14 +137,23 @@ class Enemies {
       "pos15_1", "pos16", "pos16_1", "pos17"].includes(heroPos)
   }
 
-  create(utils) {
-    this.reseting = false;
-    this.monkeyPos = 0;
-    this.middleBallPos = undefined;
-    this.leftBallPos = undefined;
-    this.birdPos = "pos1";
+  paws() {
+    this._pause = true;
+  }
 
-    this.bird = {
+  unPaws() {
+    this._pause = false;
+  }
+
+  create(utils) {
+    this._reseting = false;
+    this._monkeyPos = 0;
+    this._middleBallPos = undefined;
+    this._leftBallPos = undefined;
+    this._birdPos = "pos1";
+    this._pause = false;
+
+    this._bird = {
       pos1: utils.addOthers(
         {x: 430, y: 365, frame: 11},
         {noAction: "pos2"}
@@ -155,7 +176,7 @@ class Enemies {
       ),
     };
 
-    this.monkeyFsm = [
+    this._monkeyFsm = [
       {position: "left", arm: "leftTake", drop: false},
       {position: "left", arm: "leftDrop", drop: true},
       {position: "middle", arm: "middleTake", drop: false},
@@ -186,7 +207,7 @@ class Enemies {
       {position: "middle", arm: "middleDrop", drop: true},
     ];
 
-    this.monkey = {
+    this._monkey = {
       left: utils.addOthers(
         {x: 110, y: 130, frame: 20},
         {}
@@ -201,7 +222,7 @@ class Enemies {
       ),
     };
 
-    this.monkeyArm = {
+    this._monkeyArm = {
       leftTake: utils.addOthers(
         {x: 160, y: 135, frame: 34},
         {}
@@ -242,7 +263,7 @@ class Enemies {
     };
 
     // if hero is on bottom, ball goes down
-    this.ball = {
+    this._ball = {
       hBtopScreenFallsMiddle1: utils.addOthers(
         {x: 285, y: 230, frame: 39},
         {noAction: ["hBtopScreenFallsMiddle2"]}
@@ -253,7 +274,7 @@ class Enemies {
       ),
       hBdownScreenTop: utils.addOthers(
         {x: 190, y: 380, frame: 37},
-        {noAction: ["hBdownScreenMiddle"]}
+        {noAction: ["hBdownScreenMiddle"], death: ["pos4"]}
       ),
       hBdownScreenMiddle: utils.addOthers(
         {x: 170, y: 480, frame: 37},
@@ -261,7 +282,7 @@ class Enemies {
       ),
       hBdownScreenCloseToKey: utils.addOthers(
         {x: 120, y: 610, frame: 37},
-        {noAction: ""}
+        {noAction: [""], death: ["pos2"]}
       ),
       //leftBallForHeroOnBottom
       hBtopScreenFallsLeft: utils.addOthers(
@@ -274,13 +295,13 @@ class Enemies {
       ),
       hBtopScreenOverSkull: utils.addOthers(
         {x: 45, y: 260, frame: 39},
-        {noAction: ""}
+        {noAction: [""]}
       ),
       // hero on top
       // top rightmost
       hTtopScreenRight3: utils.addOthers(
         {x: 580, y: 340, frame: 37},
-        {noAction: ""}
+        {noAction: [""]}
       ),
       hTtopScreenRight2: utils.addOthers(
         {x: 480, y: 340, frame: 37},
@@ -313,18 +334,18 @@ class Enemies {
       // this might not be necessary
       hTtopScreenFallsLeft: utils.addOthers(
         {x: 170, y: 250, frame: 39},
-        {noAction: ""}
+        {noAction: [""]}
       ),
       // this might not be necessary
       hTtopScreenOverSkull: utils.addOthers(
         {x: 45, y: 260, frame: 39},
-        {noAction: ""}
+        {noAction: [""]}
       ),
     };
-    this.allMonkeyPositions = Object.keys(this.monkey);
-    this.allMonkeyArmPositions = Object.keys(this.monkeyArm);
-    this.allBallPositions = Object.keys(this.ball);
-    this.allBirdPositions = Object.keys(this.bird);
+    this._allMonkeyPositions = Object.keys(this._monkey);
+    this._allMonkeyArmPositions = Object.keys(this._monkeyArm);
+    this._allBallPositions = Object.keys(this._ball);
+    this._allBirdPositions = Object.keys(this._bird);
   };
 }
 

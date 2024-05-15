@@ -2,61 +2,63 @@ import { ACTIONS } from "../constants";
 
 class Hero {
   hideShow(visible) {
-    this.allPositions.forEach((pos) => {
-      this.positions[pos].sprite.setVisible(visible);
+    this._allPositions.forEach((pos) => {
+      this._positions[pos].sprite.setVisible(visible);
     });
-    this.allSwordPositions.forEach((pos) => {
-      this.swordPositions[pos].sprite.setVisible(visible);
+    this._allSwordPositions.forEach((pos) => {
+      this._swordPositions[pos].sprite.setVisible(visible);
     });
   }
 
   start() {
       this.hideShow(false);
-      this.dead = false;
-      this.position = "pos1";
-      this.lives = 3;
-      this.keyIsTaken = false;
-      this.swordIsTaken = false;
-      this.positions.pos1.sprite.setVisible(true);
+      this._dead = false;
+      this._position = "pos1";
+      this._lives = 3;
+      this._keyIsTaken = false;
+      this._swordIsTaken = false;
+      this._positions.pos1.sprite.setVisible(true);
   }
 
   reset() {
     this.hideShow(true);
-    this.dead = false;
+    this._dead = false;
   }
 
-  death() {
-    this.dead = true;
-    this.deadFlashCounts = 14;
-    this.lives--;
+  death(events) {
+    this._dead = true;
+    this._flashCountsDead = 14;
+    this._lives--;
   }
 
   tryAgain(events) {
-    if (!this.dead) {return false;}
-    if (this.lives === 0) {
+    if (!this._dead) {return false;}
+    if (this._lives === 0) {
       events.emit(ACTIONS.noLives);
       return;
     }
     this.hideShow(false);
-    this.dead = false;
-    this.position = "pos1";
-    this.keyIsTaken = false;
-    this.swordIsTaken = false;
-    this.positions.pos1.sprite.setVisible(true);
+    this._dead = false;
+    this._position = "pos1";
+    this._keyIsTaken = false;
+    this._swordIsTaken = false;
+    this._positions.pos1.sprite.setVisible(true);
     return true;
   }
 
   create(utils) {
-    this.autoAction = undefined;
-    this.swordIsTaken = false;
-    this.keyIsTaken = false;
-    this.dead = false;
-    this.deadFlashCounts = 0;
-    this.position = "pos1";
-    this.currentSword = "";
-    this.lives = 3;
+    this._autoAction = undefined;
+    this._swordIsTaken = false;
+    this._keyIsTaken = false;
+    this._dead = false;
+    this._flashCountsDead = 0;
+    this._position = "pos1";
+    this._currentSword = "";
+    this._timeAutoAction = 0;
+    // TODO maybe lives should go to gameScene?
+    this._lives = 3;
     // this should be only visible is sword is taken!
-    this.swordPositions = {
+    this._swordPositions = {
       pos17: utils.addOthers({x: 483, y: 298, frame: 23},
         {left: "pos19", jump: "pos18"}
       ),
@@ -111,7 +113,7 @@ class Hero {
         {right: "openKey", left: "pos26"}
       ),
     };
-    this.positions = {
+    this._positions = {
       pos1: utils.addHeroTo(
         {x: 60, y: 620, frame: 0},
         {right: "pos2"}
@@ -249,89 +251,87 @@ class Hero {
         {right: "take:openKey", left: "pos26"}
       ),
     }
-    this.allPositions = Object.keys(this.positions);
-    this.allSwordPositions = Object.keys(this.swordPositions);
+    this._allPositions = Object.keys(this._positions);
+    this._allSwordPositions = Object.keys(this._swordPositions);
   };
 
   changeSwordPositionIfApplies(oldPosition, newPosition) {
-    if (this.allSwordPositions.includes(this.currentSword)) {
-      this.swordPositions[this.currentSword].sprite.setVisible(false);
+    if (this._allSwordPositions.includes(this._currentSword)) {
+      this._swordPositions[this._currentSword].sprite.setVisible(false);
     }
-    if (this.swordIsTaken && this.allSwordPositions.includes(newPosition)) {
-      this.currentSword = newPosition;
-      console.log("up and with sword", newPosition);
-      this.swordPositions[this.currentSword].sprite.setVisible(true);
+    if (this._swordIsTaken && this._allSwordPositions.includes(newPosition)) {
+      this._currentSword = newPosition;
+      this._swordPositions[this._currentSword].sprite.setVisible(true);
     }
+  }
+
+  getPosition() {
+    return this._position;
   }
 
   swordFight(currentPosition) {
     console.log("swordFight");
-    if (!this.currentSword.includes(currentPosition)) {
-      console.log("not includes currentPosition", this.currentSword, currentPosition)
-      this.currentSword = currentPosition;
+    if (!this._currentSword.includes(currentPosition)) {
+      console.log("not includes currentPosition", this._currentSword, currentPosition)
+      this._currentSword = currentPosition;
     }
-    this.swordPositions[this.currentSword].sprite.setVisible(false);
-    this.currentSword = this.swordPositions[this.currentSword].actions.jump
-    console.log("set to ", this.currentSword)
-    this.swordPositions[this.currentSword].sprite.setVisible(true);
+    this._swordPositions[this._currentSword].sprite.setVisible(false);
+    this._currentSword = this._swordPositions[this._currentSword].actions.jump
+    this._swordPositions[this._currentSword].sprite.setVisible(true);
   }
 
   changePosition(newPosition, events) {
-    this.autoAction = undefined;
-    console.log("Move to", newPosition);
+    this._autoAction = undefined;
     if (newPosition === "pos14"|| newPosition === "pos14_1") {
       events.emit(ACTIONS.friendPlatform);
-    } else if (this.position === "pos14" || this.position === "pos14_1") {
+    } else if (this._position === "pos14" || this._position === "pos14_1") {
       events.emit(ACTIONS.friendPlatformLeave);
     }
-    this.changeSwordPositionIfApplies(this.position, newPosition);
-    this.positions[this.position].sprite.setVisible(false);
-    this.position = newPosition;
-    this.positions[this.position].sprite.setVisible(true);
+    this.changeSwordPositionIfApplies(this._position, newPosition);
+    this._positions[this._position].sprite.setVisible(false);
+    this._position = newPosition;
+    this._positions[this._position].sprite.setVisible(true);
 
     // detect death position on new Position (fallen)
-    if (this.positions[newPosition].actions.death) {
-      this.dead = true;
-      this.deadFlashCounts = 14;
-      this.lives--;
+    if (this._positions[newPosition].actions.death) {
       events.emit(ACTIONS.death);
     }
     // detect future automatic action and set a timeout for it
-    if(this.positions[newPosition].actions.noAction) {
+    if(this._positions[newPosition].actions.noAction) {
       // this will happen when you don't push any other button
-      this.autoAction = this.positions[newPosition].actions.noAction;
-      console.log("auto action ", this.autoAction)
-      this.autoActionHappened = Date.now();
+      this._autoAction = this._positions[newPosition].actions.noAction;
+      this._timeAutoAction = Date.now();
     }
   }
 
   move(where, events) {
-    if (this.positions[this.position].actions[where]) {
-      const newPosition = this.positions[this.position].actions[where];
+    if(this._dead) {
+      // you don't move while dead, you zombie :)
+      return;
+    }
+    if (this._positions[this._position].actions[where]) {
+      const newPosition = this._positions[this._position].actions[where];
 
       if (newPosition.includes("take:")) {
         if (newPosition.includes("take:key")) {
-          if (!this.keyIsTaken) {
-            console.log("take key"); // TODO make sound
-            this.keyIsTaken = true;
+          if (!this._keyIsTaken) {
+            this._keyIsTaken = true;
             events.emit(ACTIONS.takeKey);
           }
         } else if (newPosition.includes("take:sword")) {
-          if (!this.swordIsTaken) {
-            console.log("take sword"); // TODO make sound
-            this.swordIsTaken = true;
+          if (!this._swordIsTaken) {
+            this._swordIsTaken = true;
             events.emit(ACTIONS.takeSword);
           }
         }
       } else if (newPosition === "fight:sword") {
         console.log("fight sword");
-        this.swordFight(this.position);
+        this.swordFight(this._position);
       } else {
         // if sprite is moved, stop any automatic action
-        if (this.autoAction) {
-          console.log("stop automatic action");
-          clearTimeout(this.autoAction);
-          this.autoAction = undefined;
+        if (this._autoAction) {
+          clearTimeout(this._autoAction);
+          this._autoAction = undefined;
         }
         // switch to new position
         this.changePosition(newPosition, events);
@@ -340,18 +340,17 @@ class Hero {
   }
 
   tick(events) {
-    console.log("hero position", this.position, this.autoAction);
-    if (this.dead && this.deadFlashCounts > 0) {
-      this.deadFlashCounts--;
-      this.positions[this.position].sprite.setVisible((this.deadFlashCounts % 2) === 0);
-      if (this.deadFlashCounts === 0) {
+    if (this._dead && this._flashCountsDead > 0) {
+      this._flashCountsDead--;
+      this._positions[this._position].sprite.setVisible((this._flashCountsDead % 2) === 0);
+      if (this._flashCountsDead === 0) {
         events.emit(ACTIONS.deathEnd);
       }
     }
-    if (this.autoAction) {
-      const millis = Date.now() - this.autoActionHappened;
+    if (this._autoAction) {
+      const millis = Date.now() - this._timeAutoAction;
       if (millis >= 800) {
-        this.changePosition(this.autoAction, events);
+        this.changePosition(this._autoAction, events);
       }
     }
   }

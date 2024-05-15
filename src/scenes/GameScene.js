@@ -74,7 +74,7 @@ class GameScene extends PointerBase {
   ticker() {
     // todo: check game started
     this.statics.tick(this.events);
-    this.enemies.tick(this.events, this.hero.position);
+    this.enemies.tick(this.events, this.hero.getPosition());
   }
   heroTicker() {
     this.hero.tick(this.events);
@@ -100,6 +100,8 @@ class GameScene extends PointerBase {
   }
 
   deathStarts() {
+    this.hero.death();
+    this.enemies.paws();
     this.deathSound.play();
   }
 
