@@ -45,6 +45,7 @@ class GameScene extends PointerBase {
     const utils = SceneUtils(this.physics);
     this.hero = new Hero();
     this.hero.create(utils);
+    this.heroPos = "pos1";
 
     this.enemies = new Enemies();
     this.enemies.create(utils);
@@ -73,7 +74,7 @@ class GameScene extends PointerBase {
   ticker() {
     // todo: check game started
     this.statics.tick(this.events);
-    this.enemies.tick();
+    this.enemies.tick(this.events, this.hero.position);
   }
   heroTicker() {
     this.hero.tick(this.events);
@@ -107,6 +108,7 @@ class GameScene extends PointerBase {
     this.statics.start();
     this.enemies.start();
     this.hero.tryAgain(this.events);
+    this.heroPos = "pos1";
   }
 
   update(time, delta) {
@@ -131,35 +133,49 @@ class GameScene extends PointerBase {
       console.log("Reset pressed");
       if (!this.reseted) {
         this.hero.reset();
+        this.heroPos = "pos1";
         this.enemies.reset();
         this.statics.reset();
         this.princess.reset();
         this.reseted = true;
-        setTimeout(() => {
-          this.hero.start();
-          this.princess.start();
-          this.enemies.start();
-          this.statics.start();
-          this.reseted = false;
-        }, 2000);
+        this.time.addEvent({
+          callback: () => {
+            this.hero.start();
+            this.princess.start();
+            this.enemies.start();
+            this.statics.start();
+            this.reseted = false;
+          },
+          callbackScope: this,
+          delay: 2000,
+          loop: false
+        });
       }
     }
 
+    const action = this.keysToAction();
+    if (action) {
+      // TODO take hero position here
+      this.hero.move(action, this.events);
+    }
+  }
+
+  // detects pressed keys and converts to ACTIONS
+  keysToAction() {
     if (this.cursors.right.isDown) {
-      console.log("Right");
-      this.hero.move(ACTIONS.right, this.events);
+      return ACTIONS.right;
     } else if (this.cursors.left.isDown) {
-      this.hero.move(ACTIONS.left, this.events);
+      return ACTIONS.left;
     }
 
     if (this.cursors.up.isDown) {
-      this.hero.move(ACTIONS.up, this.events);
+      return ACTIONS.up;
     } else if (this.cursors.down.isDown) {
-      this.hero.move(ACTIONS.down, this.events);
+      return ACTIONS.down;
     }
 
     if (this.cursors.space.isDown) {
-      this.hero.move(ACTIONS.jump, this.events);
+      return ACTIONS.jump;
     }
   }
 

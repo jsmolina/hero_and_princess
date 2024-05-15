@@ -337,7 +337,6 @@ class Hero {
         this.changePosition(newPosition, events);
       }
     }
-    return ACTIONS.none;
   }
 
   tick(events) {

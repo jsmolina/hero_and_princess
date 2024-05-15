@@ -27,7 +27,7 @@ class Enemies {
     this.reseting = true;
   }
 
-  moveBird() {
+  moveBird(events, heroPos) {
     this.bird[this.birdPos].sprite.setVisible(false);
     const newPosition = this.bird[this.birdPos].actions.noAction;
     if (!newPosition) {
@@ -38,7 +38,7 @@ class Enemies {
     this.bird[newPosition].sprite.setVisible(true);
   }
 
-  moveMonkey() {
+  moveMonkey(events, heroPos) {
     // TODO react to swordFight
     // TODO react to get
     const currentNode = this.monkeyFsm[this.monkeyPos];
@@ -54,30 +54,97 @@ class Enemies {
     if (newNode.arm) {
       this.monkeyArm[newNode.arm].sprite.setVisible(true);
     }
+
+    // no more than two balls at once
     if (newNode.drop) {
       console.log("DROP! ", newNode.position)
+      // if !this.ballPos maybe? wait?
+      const ballFsmPositionFromArm = this.isHeroOnBottom(heroPos) ? {
+        left: "hBtopScreenFallsLeft",
+        middle: "hBtopScreenFallsMiddle1",
+      } : {
+        left: "hTtopScreenFallsLeft",
+        middle: "hTtopScreenFallsMiddle1",
+      };
+
+      if (newNode.position === "left" && !this.leftBallPos) {
+        this.leftBallPos = ballFsmPositionFromArm[newNode.position];
+        this.ball[this.leftBallPos].sprite.setVisible(true);
+      } else if (newNode.position === "middle" && !this.middleBallPos) {
+        this.middleBallPos = ballFsmPositionFromArm[newNode.position];
+        this.ball[this.middleBallPos].sprite.setVisible(true);
+      }
     }
   }
 
-  moveBall() {
-    if (!this.ballPos) {
-      return;
+  _moveBallTo(events, heroPos, newPos) {
+    if (newPos) {
+      console.log("moving ball",newPos, this.ball[newPos]);
+      const actualNode = this.ball[newPos];
+      if (!actualNode) {
+        console.warn("no actualNode found for ", newPos);
+        return;
+      }
+      console.warn("Hiding ", newPos);
+      actualNode.sprite.setVisible(false);
+      const noActionPos = actualNode.actions.noAction
+      if (noActionPos) {
+        if(!this.ball[noActionPos]) {
+          console.warn("no automatic node found", newPos);
+          return;
+        }
+        this.ball[noActionPos].sprite.setVisible(true);
+      }
+      return noActionPos;
     }
+    return newPos;
   }
 
-  tick() {
+  moveBall(events, heroPos) {
+    this.middleBallPos = this._moveBallTo(events, heroPos, this.middleBallPos);
+    this.leftBallPos = this._moveBallTo(events, heroPos, this.leftBallPos);
+    /*if (this.middleBallPos) {
+      console.log(this.middleBallPos, this.ball);
+      const middleNode = this.ball[this.middleBallPos];
+      if (!middleNode) {
+        console.warn("no middlenode");
+        return;
+      }
+      middleNode.sprite.setVisible(false);
+      this.middleBallPos = middleNode.actions.noAction
+      if (this.middleBallPos) {
+        if(!this.ball[this.middleBallPos]) {
+          console.warn("no new node");
+          return;
+        }
+        this.ball[this.middleBallPos].sprite.setVisible(true);
+      }
+    }*/
+  }
+
+  tick(events, heroPos) {
     if (this.reseting) {
       return;
     }
-    this.moveBird();
-    this.moveMonkey();
-    this.moveBall();
+    this.moveBird(events, heroPos);
+    this.moveMonkey(events, heroPos);
+    this.moveBall(events, heroPos);
+  }
+
+  isHeroOnBottom(heroPos) {
+    return ["pos1", "pos2", "pos3", "pos4",
+      "pos5", "pos5_1", "pos6", "pos7",
+      "pos8", "pos8_1", "pos9", "pos10",
+      "pos11", "pos12", "pos12_1", "pos13",
+      "pos13_1", "pos14", "pos14_1", "pos15",
+      "pos15_1", "pos16", "pos16_1", "pos17"].includes(heroPos)
   }
 
   create(utils) {
     this.reseting = false;
     this.monkeyPos = 0;
-    this.ballPos = undefined;
+    this.middleBallPos = undefined;
+    this.leftBallPos = undefined;
     this.birdPos = "pos1";
 
     this.bird = {
@@ -101,11 +168,6 @@ class Enemies {
         {x: 100, y: 380, frame: 15},
         {noAction: "pos1"},
       ),
-    };
-
-    this.ballFromArm = {
-      left: "topScreenFallsLeft",
-      middle: "topScreenFallsMiddle1",
     };
 
     this.monkeyFsm = [
@@ -193,61 +255,85 @@ class Enemies {
         {noAction: "right"}
       ),
     };
+
+    // if hero is on bottom, ball goes down
     this.ball = {
-      downScreenTop: utils.addOthers(
+      hBtopScreenFallsMiddle1: utils.addOthers(
+        {x: 285, y: 230, frame: 39},
+        {noAction: "hBtopScreenFallsMiddle2"}
+      ),
+      hBtopScreenFallsMiddle2: utils.addOthers(
+        {x: 285, y: 280, frame: 37},
+        {noAction: "hBdownScreenTop"}
+      ),
+      hBdownScreenTop: utils.addOthers(
         {x: 190, y: 380, frame: 37},
-        {noAction: "downScreenMiddle"}
+        {noAction: "hBdownScreenMiddle"}
       ),
-      downScreenMiddle: utils.addOthers(
+      hBdownScreenMiddle: utils.addOthers(
         {x: 170, y: 480, frame: 37},
-        {noAction: "downScreenMiddle"}
+        {noAction: "hBdownScreenCloseToKey"}
       ),
-      downScreenBottom: utils.addOthers(
+      hBdownScreenCloseToKey: utils.addOthers(
         {x: 120, y: 610, frame: 37},
-        {noAction: "downScreenBottom"}
+        {noAction: ""}
       ),
-      topScreenRight3: utils.addOthers(
+      //leftBallForHeroOnBottom
+      hBtopScreenFallsLeft: utils.addOthers(
+        {x: 170, y: 250, frame: 39},
+        {noAction: "hBtopScreenFallsLeftFloor"}
+      ),
+      hBtopScreenFallsLeftFloor: utils.addOthers(
+        {x: 145, y: 320, frame: 37},
+        {noAction: "hBtopScreenOverSkull"}
+      ),
+      hBtopScreenOverSkull: utils.addOthers(
+        {x: 45, y: 260, frame: 39},
+        {noAction: ""}
+      ),
+      // hero on top
+      // top rightmost
+      hTtopScreenRight3: utils.addOthers(
         {x: 580, y: 340, frame: 37},
         {}
       ),
-      topScreenRight2: utils.addOthers(
+      hTtopScreenRight2: utils.addOthers(
         {x: 480, y: 340, frame: 37},
         {}
       ),
-      topScreenRight1: utils.addOthers(
+      hTtopScreenRight1: utils.addOthers(
         {x: 385, y: 330, frame: 37},
         {}
       ),
-      topScreenRight0: utils.addOthers(
+      hTtopScreenRight0: utils.addOthers(
         {x: 290, y: 320, frame: 39},
         {}
       ),
-      topScreenFallsMiddle1: utils.addOthers(
+      hTtopScreenFallsMiddle1: utils.addOthers(
         {x: 285, y: 230, frame: 39},
-        {noAction: "topScreenFallsMiddle2"}
+        {noAction: "hTtopScreenFallsMiddle2"}
       ),
-      topScreenFallsMiddle2: utils.addOthers(
+      hTtopScreenFallsMiddle2: utils.addOthers(
         {x: 285, y: 280, frame: 37},
-        {noAction: "downScreenTop"}
+        {noAction: "hTdownScreenTop"}
       ),
-      topScreenLeft1: utils.addOthers(
+      hTtopScreenLeft1: utils.addOthers(
         {x: 255, y: 310, frame: 37},
         {}
       ),
-      topScreenLeft2: utils.addOthers(
+      hTtopScreenLeft2: utils.addOthers(
         {x: 145, y: 320, frame: 37},
         {}
       ),
-      topScreenFallsLeft: utils.addOthers(
+      hTtopScreenFallsLeft: utils.addOthers(
         {x: 170, y: 250, frame: 39},
         {}
       ),
-      topScreenOverSkull: utils.addOthers(
+      hTtopScreenOverSkull: utils.addOthers(
         {x: 45, y: 260, frame: 39},
         {}
       ),
-
-    }
+    };
     this.allMonkeyPositions = Object.keys(this.monkey);
     this.allMonkeyArmPositions = Object.keys(this.monkeyArm);
     this.allBallPositions = Object.keys(this.ball);
