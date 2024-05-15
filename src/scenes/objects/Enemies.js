@@ -57,7 +57,7 @@ class Enemies {
 
     // no more than two balls at once
     if (newNode.drop) {
-      console.log("DROP! ", newNode.position)
+      console.log("DROP! ", newNode.position, this.isHeroOnBottom(heroPos))
       // if !this.ballPos maybe? wait?
       const ballFsmPositionFromArm = this.isHeroOnBottom(heroPos) ? {
         left: "hBtopScreenFallsLeft",
@@ -87,7 +87,9 @@ class Enemies {
       }
       console.warn("Hiding ", newPos);
       actualNode.sprite.setVisible(false);
-      const noActionPos = actualNode.actions.noAction
+      const noAction = actualNode.actions.noAction;
+      const noActionPos = noAction.length < 2 ? noAction : noAction[Math.floor(Math.random() * noAction.length)];
+      console.log("NoActionPos ", noActionPos);
       if (noActionPos) {
         if(!this.ball[noActionPos]) {
           console.warn("no automatic node found", newPos);
@@ -103,23 +105,6 @@ class Enemies {
   moveBall(events, heroPos) {
     this.middleBallPos = this._moveBallTo(events, heroPos, this.middleBallPos);
     this.leftBallPos = this._moveBallTo(events, heroPos, this.leftBallPos);
-    /*if (this.middleBallPos) {
-      console.log(this.middleBallPos, this.ball);
-      const middleNode = this.ball[this.middleBallPos];
-      if (!middleNode) {
-        console.warn("no middlenode");
-        return;
-      }
-      middleNode.sprite.setVisible(false);
-      this.middleBallPos = middleNode.actions.noAction
-      if (this.middleBallPos) {
-        if(!this.ball[this.middleBallPos]) {
-          console.warn("no new node");
-          return;
-        }
-        this.ball[this.middleBallPos].sprite.setVisible(true);
-      }
-    }*/
   }
 
   tick(events, heroPos) {
@@ -260,19 +245,19 @@ class Enemies {
     this.ball = {
       hBtopScreenFallsMiddle1: utils.addOthers(
         {x: 285, y: 230, frame: 39},
-        {noAction: "hBtopScreenFallsMiddle2"}
+        {noAction: ["hBtopScreenFallsMiddle2"]}
       ),
       hBtopScreenFallsMiddle2: utils.addOthers(
         {x: 285, y: 280, frame: 37},
-        {noAction: "hBdownScreenTop"}
+        {noAction: ["hBdownScreenTop"]}
       ),
       hBdownScreenTop: utils.addOthers(
         {x: 190, y: 380, frame: 37},
-        {noAction: "hBdownScreenMiddle"}
+        {noAction: ["hBdownScreenMiddle"]}
       ),
       hBdownScreenMiddle: utils.addOthers(
         {x: 170, y: 480, frame: 37},
-        {noAction: "hBdownScreenCloseToKey"}
+        {noAction: ["hBdownScreenCloseToKey"]}
       ),
       hBdownScreenCloseToKey: utils.addOthers(
         {x: 120, y: 610, frame: 37},
@@ -281,11 +266,11 @@ class Enemies {
       //leftBallForHeroOnBottom
       hBtopScreenFallsLeft: utils.addOthers(
         {x: 170, y: 250, frame: 39},
-        {noAction: "hBtopScreenFallsLeftFloor"}
+        {noAction: ["hBtopScreenFallsLeftFloor"]}
       ),
       hBtopScreenFallsLeftFloor: utils.addOthers(
         {x: 145, y: 320, frame: 37},
-        {noAction: "hBtopScreenOverSkull"}
+        {noAction: ["hBtopScreenOverSkull"]}
       ),
       hBtopScreenOverSkull: utils.addOthers(
         {x: 45, y: 260, frame: 39},
@@ -295,43 +280,45 @@ class Enemies {
       // top rightmost
       hTtopScreenRight3: utils.addOthers(
         {x: 580, y: 340, frame: 37},
-        {}
+        {noAction: ""}
       ),
       hTtopScreenRight2: utils.addOthers(
         {x: 480, y: 340, frame: 37},
-        {}
+        {noAction: ["hTtopScreenRight3"]}
       ),
       hTtopScreenRight1: utils.addOthers(
         {x: 385, y: 330, frame: 37},
-        {}
+        {noAction: ["hTtopScreenRight2"]}
       ),
       hTtopScreenRight0: utils.addOthers(
         {x: 290, y: 320, frame: 39},
-        {}
+        {noAction: ["hTtopScreenLeft1", "hTtopScreenRight1"]}
       ),
       hTtopScreenFallsMiddle1: utils.addOthers(
         {x: 285, y: 230, frame: 39},
-        {noAction: "hTtopScreenFallsMiddle2"}
+        {noAction: ["hTtopScreenFallsMiddle2"]}
       ),
       hTtopScreenFallsMiddle2: utils.addOthers(
         {x: 285, y: 280, frame: 37},
-        {noAction: "hTdownScreenTop"}
+        {noAction: ["hTtopScreenRight0"]}
       ),
       hTtopScreenLeft1: utils.addOthers(
         {x: 255, y: 310, frame: 37},
-        {}
+        {noAction: ["hTtopScreenLeft2"]}
       ),
       hTtopScreenLeft2: utils.addOthers(
         {x: 145, y: 320, frame: 37},
-        {}
+        {noAction: ["hTtopScreenOverSkull"]}
       ),
+      // this might not be necessary
       hTtopScreenFallsLeft: utils.addOthers(
         {x: 170, y: 250, frame: 39},
-        {}
+        {noAction: ""}
       ),
+      // this might not be necessary
       hTtopScreenOverSkull: utils.addOthers(
         {x: 45, y: 260, frame: 39},
-        {}
+        {noAction: ""}
       ),
     };
     this.allMonkeyPositions = Object.keys(this.monkey);
