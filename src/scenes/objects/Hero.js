@@ -339,6 +339,10 @@ class Hero {
     }
   }
 
+  isDead() {
+    return this._dead;
+  }
+
   tick(events) {
     if (this._dead && this._flashCountsDead > 0) {
       this._flashCountsDead--;

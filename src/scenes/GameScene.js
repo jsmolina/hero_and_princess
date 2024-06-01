@@ -19,6 +19,7 @@ class GameScene extends PointerBase {
     this.events.on(ACTIONS.friendPlatformLeave, this.outPlatform, this);
     this.events.on(ACTIONS.death, this.deathStarts, this);
     this.events.on(ACTIONS.deathEnd, this.deathEnds, this);
+    this.events.on(ACTIONS.noLives, this.noLives, this);
 
     this.triggerTimer = this.time.addEvent({
         callback: this.heroTicker,
@@ -73,9 +74,13 @@ class GameScene extends PointerBase {
 
   ticker() {
     // todo: check game started
+    if (this.hero.isDead()) {
+      return;
+    }
     this.statics.tick(this.events);
     this.enemies.tick(this.events, this.hero.getPosition());
   }
+
   heroTicker() {
     this.hero.tick(this.events);
   }
@@ -100,17 +105,23 @@ class GameScene extends PointerBase {
   }
 
   deathStarts() {
+    console.warn("Dead starts -->");
     this.hero.death();
     this.enemies.paws();
     this.deathSound.play();
   }
 
   deathEnds() {
+    console.warn("<---- Dead end");
     // TODO flashing ends, a new head appears on top, hero retries
     this.statics.start();
     this.enemies.start();
     this.hero.tryAgain(this.events);
     this.heroPos = "pos1";
+  }
+
+  noLives() {
+    console.warn("No more lives");
   }
 
   update(time, delta) {

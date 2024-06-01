@@ -45,7 +45,7 @@ class Enemies {
     // TODO react to swordFight
     // TODO react to get
     const currentNode = this._monkeyFsm[this._monkeyPos];
-    console.log("FSM", currentNode.position, this._monkeyPos);
+    //console.log("FSM", currentNode.position, this._monkeyPos);
     this._monkey[currentNode.position].sprite.setVisible(false);
     if (currentNode.arm) {
       this._monkeyArm[currentNode.arm].sprite.setVisible(false);
@@ -110,22 +110,41 @@ class Enemies {
     if(this._middleBallPos && this._ball[this._middleBallPos] && this._ball[this._middleBallPos].actions.death) {
       if (this._ball[this._middleBallPos].actions.death.includes(heroPos)) {
         // todo two ticks maybe?
-        console.warn("Hero death!!");
+        console.warn("Hero death!!", this._middleBallPos, heroPos);
         events.emit(ACTIONS.death);
+        return true;
       }
     }
+    return false;
+  }
+
+  checkBirdDeaths(events, heroPos) {
+    console.info("heroPos", heroPos, "birdPos", this._birdPos);
+    if(this._birdPos && this._bird[this._birdPos] && this._bird[this._birdPos].actions.death) {
+      if (this._bird[this._birdPos].actions.death.includes(heroPos)) {
+        console.warn("Hero death by bird!!", this._birdPos, heroPos);
+        events.emit(ACTIONS.death);
+        return true;
+      }
+    }
+    return false;
   }
 
   tick(events, heroPos) {
     if (this._reseting || this._pause) {
       return;
     }
-    this.checkBallDeaths(events, heroPos);
+    if (this.checkBallDeaths(events, heroPos)) {
+      return;
+    }
+    if (this.checkBirdDeaths(events, heroPos)) {
+      return;
+    }
     this.moveBird(events, heroPos);
     this.moveMonkey(events, heroPos);
     this.moveBall(events, heroPos);
     // deads
-    console.log("deads", this._middleBallPos, heroPos);
+    //TODO console.log("deads", this._middleBallPos, heroPos);
   }
 
   isHeroOnBottom(heroPos) {
@@ -168,7 +187,7 @@ class Enemies {
       ),
       pos4: utils.addOthers(
         {x: 210, y: 380, frame: 14},
-        {noAction: "pos5"},
+        {noAction: "pos5", death: ["pos6"]},
       ),
       pos5: utils.addOthers(
         {x: 100, y: 380, frame: 15},
@@ -274,11 +293,12 @@ class Enemies {
       ),
       hBdownScreenTop: utils.addOthers(
         {x: 190, y: 380, frame: 37},
-        {noAction: ["hBdownScreenMiddle"], death: ["pos4"]}
+        {noAction: ["hBdownScreenMiddle"]}
       ),
+      //, death: ["pos4"]
       hBdownScreenMiddle: utils.addOthers(
         {x: 170, y: 480, frame: 37},
-        {noAction: ["hBdownScreenCloseToKey"]}
+        {noAction: ["hBdownScreenCloseToKey"], death: ["pos4"]}
       ),
       hBdownScreenCloseToKey: utils.addOthers(
         {x: 120, y: 610, frame: 37},
