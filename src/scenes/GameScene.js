@@ -17,8 +17,18 @@ class GameScene extends PointerBase {
     this.events.on(ACTIONS.takeSword, this.swordHandler, this);
     this.events.on(ACTIONS.friendPlatform, this.inPlatform, this);
     this.events.on(ACTIONS.friendPlatformLeave, this.outPlatform, this);
+    this.events.on(ACTIONS.death, this.deathStarts, this);
+    this.events.on(ACTIONS.deathEnd, this.deathEnds, this);
+    this.events.on(ACTIONS.noLives, this.noLives, this);
 
     this.triggerTimer = this.time.addEvent({
+        callback: this.heroTicker,
+        callbackScope: this,
+        delay: 250, // 1000 = 1 second
+        loop: true
+    });
+
+    this.normalTimer = this.time.addEvent({
         callback: this.ticker,
         callbackScope: this,
         delay: 1000, // 1000 = 1 second
@@ -36,6 +46,7 @@ class GameScene extends PointerBase {
     const utils = SceneUtils(this.physics);
     this.hero = new Hero();
     this.hero.create(utils);
+    this.heroPos = "pos1";
 
     this.enemies = new Enemies();
     this.enemies.create(utils);
@@ -53,21 +64,36 @@ class GameScene extends PointerBase {
 
     // Create a helper object for our arrow keys
     this.cursors = this.input.keyboard.createCursorKeys();
+    this.enterKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
+    // init sounds
+    this.takeKeySound = this.sound.add('takeKey');
+    this.takeSwordSound = this.sound.add('takeSword');
+    this.deathSound = this.sound.add('death');
+    this.keyPressSound = this.sound.add('keyPress');
   }
+
   ticker() {
     // todo: check game started
+    if (this.hero.isDead()) {
+      return;
+    }
     this.statics.tick(this.events);
+    this.enemies.tick(this.events, this.hero.getPosition());
+  }
+
+  heroTicker() {
     this.hero.tick(this.events);
-    this.enemies.tick();
   }
 
   keyHandler() {
     console.log("KeyHandler called");
+    this.takeKeySound.play();
     this.statics.takeKey();
   }
 
   swordHandler() {
     console.log("SwordHandler called");
+    this.takeSwordSound.play();
     this.statics.takeSword();
   }
 
@@ -76,6 +102,26 @@ class GameScene extends PointerBase {
   }
   outPlatform() {
     this.statics.showHideFriendPlatform(false);
+  }
+
+  deathStarts() {
+    console.warn("Dead starts -->");
+    this.hero.death();
+    this.enemies.paws();
+    this.deathSound.play();
+  }
+
+  deathEnds() {
+    console.warn("<---- Dead end");
+    // TODO flashing ends, a new head appears on top, hero retries
+    this.statics.start();
+    this.enemies.start();
+    this.hero.tryAgain(this.events);
+    this.heroPos = "pos1";
+  }
+
+  noLives() {
+    console.warn("No more lives");
   }
 
   update(time, delta) {
@@ -87,6 +133,9 @@ class GameScene extends PointerBase {
         // Code that relies on a consistent 60hz update
     }
     console.log("t", time);*/
+    if (this.cursors.down.isDown || this.cursors.up.isDown || this.cursors.left.isDown || this.cursors.right.isDown) {
+      this.keyPressSound.play();
+    }
 
     if (this.cursors.shift.isDown) {
       this.reseting = true;
@@ -97,35 +146,49 @@ class GameScene extends PointerBase {
       console.log("Reset pressed");
       if (!this.reseted) {
         this.hero.reset();
+        this.heroPos = "pos1";
         this.enemies.reset();
         this.statics.reset();
         this.princess.reset();
         this.reseted = true;
-        setTimeout(() => {
-          this.hero.start();
-          this.princess.start();
-          this.enemies.start();
-          this.statics.start();
-          this.reseted = false;
-        }, 2000);
+        this.time.addEvent({
+          callback: () => {
+            this.hero.start();
+            this.princess.start();
+            this.enemies.start();
+            this.statics.start();
+            this.reseted = false;
+          },
+          callbackScope: this,
+          delay: 2000,
+          loop: false
+        });
       }
     }
 
+    const action = this.keysToAction();
+    if (action) {
+      // TODO take hero position here
+      this.hero.move(action, this.events);
+    }
+  }
+
+  // detects pressed keys and converts to ACTIONS
+  keysToAction() {
     if (this.cursors.right.isDown) {
-      console.log("Right");
-      this.hero.move(ACTIONS.right, this.events);
+      return ACTIONS.right;
     } else if (this.cursors.left.isDown) {
-      this.hero.move(ACTIONS.left, this.events);
+      return ACTIONS.left;
     }
 
     if (this.cursors.up.isDown) {
-      this.hero.move(ACTIONS.up, this.events);
+      return ACTIONS.up;
     } else if (this.cursors.down.isDown) {
-      this.hero.move(ACTIONS.down, this.events);
+      return ACTIONS.down;
     }
 
     if (this.cursors.space.isDown) {
-      this.hero.move(ACTIONS.jump, this.events);
+      return ACTIONS.jump;
     }
   }
 
