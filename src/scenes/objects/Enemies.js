@@ -107,6 +107,7 @@ class Enemies {
   }
 
   checkBallDeaths(events, heroPos) {
+    console.info("heroPos", heroPos, "birdPos", this._middleBallPos);
     if(this._middleBallPos && this._ball[this._middleBallPos] && this._ball[this._middleBallPos].actions.death) {
       if (this._ball[this._middleBallPos].actions.death.includes(heroPos)) {
         // todo two ticks maybe?
@@ -119,7 +120,7 @@ class Enemies {
   }
 
   checkBirdDeaths(events, heroPos) {
-    console.info("heroPos", heroPos, "birdPos", this._birdPos);
+    //console.info("heroPos", heroPos, "birdPos", this._birdPos);
     if(this._birdPos && this._bird[this._birdPos] && this._bird[this._birdPos].actions.death) {
       if (this._bird[this._birdPos].actions.death.includes(heroPos)) {
         console.warn("Hero death by bird!!", this._birdPos, heroPos);
@@ -153,7 +154,7 @@ class Enemies {
       "pos8", "pos8_1", "pos9", "pos10",
       "pos11", "pos12", "pos12_1", "pos13",
       "pos13_1", "pos14", "pos14_1", "pos15",
-      "pos15_1", "pos16", "pos16_1", "pos17"].includes(heroPos)
+      "pos15_1", "pos16", "pos16_1"].includes(heroPos)
   }
 
   paws() {
@@ -179,11 +180,11 @@ class Enemies {
       ),
       pos2: utils.addOthers(
         {x: 350, y: 380, frame: 12},
-        {noAction: "pos3"},
+        {noAction: "pos3", death: ["pos10"]},
       ),
       pos3: utils.addOthers(
         {x: 310, y: 400, frame: 13},
-        {noAction: "pos4"},
+        {noAction: "pos4", death: ["pos9"]},
       ),
       pos4: utils.addOthers(
         {x: 210, y: 380, frame: 14},
@@ -325,7 +326,7 @@ class Enemies {
       ),
       hTtopScreenRight2: utils.addOthers(
         {x: 480, y: 340, frame: 37},
-        {noAction: ["hTtopScreenRight3"]}
+        {noAction: ["hTtopScreenRight3"], death: ["pos17"]}
       ),
       hTtopScreenRight1: utils.addOthers(
         {x: 385, y: 330, frame: 37},
