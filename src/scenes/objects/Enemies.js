@@ -107,15 +107,24 @@ class Enemies {
   }
 
   checkBallDeaths(events, heroPos) {
-    console.info("heroPos", heroPos, "birdPos", this._middleBallPos);
+    console.info("heroPos", heroPos, "middleBallpos", this._middleBallPos, "leftBallpos", this._leftBallPos);
     if(this._middleBallPos && this._ball[this._middleBallPos] && this._ball[this._middleBallPos].actions.death) {
       if (this._ball[this._middleBallPos].actions.death.includes(heroPos)) {
         // todo two ticks maybe?
-        console.warn("Hero death!!", this._middleBallPos, heroPos);
+        console.warn("Hero death middle!!", this._middleBallPos, heroPos);
         events.emit(ACTIONS.death);
         return true;
       }
     }
+
+    if(this._leftBallPos && this._ball[this._leftBallPos] && this._ball[this._leftBallPos].actions.death) {
+      if (this._ball[this._leftBallPos].actions.death.includes(heroPos)) {
+        console.warn("Hero death left!!", this._leftBallPos, heroPos);
+        events.emit(ACTIONS.death);
+        return true;
+      }
+    }
+
     return false;
   }
 
@@ -155,6 +164,10 @@ class Enemies {
       "pos11", "pos12", "pos12_1", "pos13",
       "pos13_1", "pos14", "pos14_1", "pos15",
       "pos15_1", "pos16", "pos16_1"].includes(heroPos)
+  }
+
+  isHeroOnTopMost(heroPos) {
+    return ["pos24", "pos25", "pos26", "pos27"].includes(heroPos)
   }
 
   paws() {
@@ -219,6 +232,13 @@ class Enemies {
       {position: "middle", arm: "middleDrop", drop: false},
       {position: "left", arm: "leftDrop", drop: false},
       {position: "left", arm: "leftDrop", drop: false},
+      {position: "left", arm: "leftDrop", drop: true},
+      {position: "middle", arm: "middleTake", drop: false},
+      {position: "middle", arm: "middleDrop", drop: true},
+      {position: "middle", arm: "middleTake", drop: false},
+      {position: "middle", arm: "middleDrop", drop: true},
+      {position: "middle", arm: "middleTake", drop: false},
+      {position: "middle", arm: "middleDrop", drop: true},
       {position: "middle", arm: "middleTake", drop: false},
       {position: "middle", arm: "middleDrop", drop: true},
       {position: "middle", arm: "middleTake", drop: false},
@@ -330,7 +350,7 @@ class Enemies {
       ),
       hTtopScreenRight1: utils.addOthers(
         {x: 385, y: 330, frame: 37},
-        {noAction: ["hTtopScreenRight2"]}
+        {noAction: ["hTtopScreenRight2"], death: ["pos19"]}
       ),
       hTtopScreenRight0: utils.addOthers(
         {x: 290, y: 320, frame: 39},
@@ -346,16 +366,16 @@ class Enemies {
       ),
       hTtopScreenLeft1: utils.addOthers(
         {x: 255, y: 310, frame: 37},
-        {noAction: ["hTtopScreenLeft2"]}
+        {noAction: ["hTtopScreenLeft2"], death: ["pos22"]}
       ),
       hTtopScreenLeft2: utils.addOthers(
         {x: 145, y: 320, frame: 37},
-        {noAction: ["hTtopScreenOverSkull"]}
+        {noAction: ["hTtopScreenOverSkull"], death: ["pos23"]}
       ),
       // this might not be necessary
       hTtopScreenFallsLeft: utils.addOthers(
         {x: 170, y: 250, frame: 39},
-        {noAction: [""]}
+        {noAction: ["hTtopScreenLeft2"]}
       ),
       // this might not be necessary
       hTtopScreenOverSkull: utils.addOthers(

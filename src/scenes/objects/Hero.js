@@ -236,15 +236,15 @@ class Hero {
       ),
       pos24: utils.addHeroTo(
         {x: 40, y: 130, frame: 23},
-        {right: "pos25", down: "pos23", jump: "fight:sword"}
+        {rightHurt: "pos25", down: "pos23", jump: "fight:sword"}
       ),
       pos25: utils.addHeroTo(
         {x: 200, y: 120, frame: 24},
-        {right: "pos26", left: "pos24", jump: "fight:sword"}
+        {rightHurt: "pos26", left: "pos24", jump: "fight:sword"}
       ),
       pos26: utils.addHeroTo(
         {x: 350, y: 80, frame: 25},
-        {right: "pos27", left: "pos25", jump: "fight:sword"}
+        {rightHurt: "pos27", left: "pos25", jump: "fight:sword"}
       ),
       pos27: utils.addHeroTo(
         {x: 490, y: 95, frame: 26},
