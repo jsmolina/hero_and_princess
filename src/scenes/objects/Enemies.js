@@ -17,6 +17,7 @@ class Enemies {
   }
 
   start() {
+    this._heroFloor = ACTIONS.floor1;
     this._reseting = false;
     this._pause = false;
     this.hideShow(false);
@@ -41,27 +42,25 @@ class Enemies {
     this._bird[newPosition].sprite.setVisible(true);
   }
 
-  moveMonkey(events, heroPos) {
-    // TODO react to swordFight
-    // TODO react to get
-    const currentNode = this._monkeyFsm[this._monkeyPos];
-    //console.log("FSM", currentNode.position, this._monkeyPos);
-    this._monkey[currentNode.position].sprite.setVisible(false);
-    if (currentNode.arm) {
-      this._monkeyArm[currentNode.arm].sprite.setVisible(false);
+  _moveMonkeySprite(events, heroPos, currentNodeFsm, newNodeFsm) {
+    // hide old
+    this._monkey[currentNodeFsm.position].sprite.setVisible(false);
+    if (currentNodeFsm.arm) {
+      this._monkeyArm[currentNodeFsm.arm].sprite.setVisible(false);
     }
-    this._monkeyPos = (this._monkeyPos + 1) % this._monkeyFsm.length;
-
-    const newNode = this._monkeyFsm[this._monkeyPos];
-    this._monkey[newNode.position].sprite.setVisible(true);
-    if (newNode.arm) {
-      this._monkeyArm[newNode.arm].sprite.setVisible(true);
+    if (!newNodeFsm) {
+      return;
+    }
+    // show new
+    this._monkey[newNodeFsm.position].sprite.setVisible(true);
+    if (newNodeFsm.arm) {
+      this._monkeyArm[newNodeFsm.arm].sprite.setVisible(true);
     }
 
     // no more than two balls at once
-    if (newNode.drop) {
+    if (newNodeFsm.drop) {
       // if !this._ballPos maybe? wait?
-      const ballFsmPositionFromArm = this.isHeroOnBottom(heroPos) ? {
+      const ballFsmPositionFromArm = (this._heroFloor === ACTIONS.floor1) ? {
         left: "hBtopScreenFallsLeft",
         middle: "hBtopScreenFallsMiddle1",
       } : {
@@ -69,14 +68,36 @@ class Enemies {
         middle: "hTtopScreenFallsMiddle1",
       };
 
-      if (newNode.position === "left" && !this._leftBallPos) {
-        this._leftBallPos = ballFsmPositionFromArm[newNode.position];
+      if (newNodeFsm.position === "left" && !this._leftBallPos) {
+        this._leftBallPos = ballFsmPositionFromArm[newNodeFsm.position];
         this._ball[this._leftBallPos].sprite.setVisible(true);
-      } else if (newNode.position === "middle" && !this._middleBallPos) {
-        this._middleBallPos = ballFsmPositionFromArm[newNode.position];
+      } else if (newNodeFsm.position === "middle" && !this._middleBallPos) {
+        this._middleBallPos = ballFsmPositionFromArm[newNodeFsm.position];
         this._ball[this._middleBallPos].sprite.setVisible(true);
       }
     }
+  }
+
+  moveMonkey(events, heroPos) {
+    // TODO react to swordFight
+    // TODO react to get
+    if (this._heroFloor === ACTIONS.floor3) {
+      // monkey should fight and not move easily
+      const currentNodeFsm = this._monkeyFsm[this._monkeyFsmPos];
+      this._monkeyFsmPos = 0; // change if applies
+      const newNodeFsm = this._monkeyFsm[this._monkeyFsmPos];
+      this._moveMonkeySprite(events, heroPos, currentNodeFsm, newNodeFsm);
+    } else {
+      const currentNodeFsm = this._monkeyFsm[this._monkeyFsmPos];
+      this._monkeyFsmPos = (this._monkeyFsmPos + 1) % this._monkeyFsm.length;
+      const newNodeFsm = this._monkeyFsm[this._monkeyFsmPos];
+      this._monkeyPos = newNodeFsm.position;
+      this._moveMonkeySprite(events, heroPos, currentNodeFsm, newNodeFsm);
+    }
+  }
+
+  getMonkeyPos() {
+     return this._monkeyPos;
   }
 
   _moveBallTo(events, heroPos, newPos) {
@@ -107,7 +128,7 @@ class Enemies {
   }
 
   checkBallDeaths(events, heroPos) {
-    console.info("heroPos", heroPos, "middleBallpos", this._middleBallPos, "leftBallpos", this._leftBallPos);
+    //console.info("heroPos", heroPos, "middleBallpos", this._middleBallPos, "leftBallpos", this._leftBallPos);
     if(this._middleBallPos && this._ball[this._middleBallPos] && this._ball[this._middleBallPos].actions.death) {
       if (this._ball[this._middleBallPos].actions.death.includes(heroPos)) {
         // todo two ticks maybe?
@@ -157,17 +178,10 @@ class Enemies {
     //TODO console.log("deads", this._middleBallPos, heroPos);
   }
 
-  isHeroOnBottom(heroPos) {
-    return ["pos1", "pos2", "pos3", "pos4",
-      "pos5", "pos5_1", "pos6", "pos7",
-      "pos8", "pos8_1", "pos9", "pos10",
-      "pos11", "pos12", "pos12_1", "pos13",
-      "pos13_1", "pos14", "pos14_1", "pos15",
-      "pos15_1", "pos16", "pos16_1"].includes(heroPos)
-  }
-
-  isHeroOnTopMost(heroPos) {
-    return ["pos24", "pos25", "pos26", "pos27"].includes(heroPos)
+  changeFloor(floor) {
+    console.log("Switch to floor", floor);
+    this._heroFloor = floor;
+    // TODO switch monkey fsm now
   }
 
   paws() {
@@ -180,7 +194,10 @@ class Enemies {
 
   create(utils) {
     this._reseting = false;
-    this._monkeyPos = 0;
+    this._monkeyFsmPos = 0;
+    this._monkeyLives = 4;
+    this._heroFloor = ACTIONS.floor1;
+    this._monkeyPos = "";
     this._middleBallPos = undefined;
     this._leftBallPos = undefined;
     this._birdPos = "pos1";

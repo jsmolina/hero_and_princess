@@ -236,15 +236,15 @@ class Hero {
       ),
       pos24: utils.addHeroTo(
         {x: 40, y: 130, frame: 23},
-        {rightHurt: "pos25", down: "pos23", jump: "fight:sword"}
+        {right: "cond:pos25", down: "pos23", jump: "fight:sword"}
       ),
       pos25: utils.addHeroTo(
         {x: 200, y: 120, frame: 24},
-        {rightHurt: "pos26", left: "pos24", jump: "fight:sword"}
+        {right: "cond:pos26", left: "pos24", jump: "fight:sword"}
       ),
       pos26: utils.addHeroTo(
         {x: 350, y: 80, frame: 25},
-        {rightHurt: "pos27", left: "pos25", jump: "fight:sword"}
+        {right: "cond:pos27", left: "pos25", jump: "fight:sword"}
       ),
       pos27: utils.addHeroTo(
         {x: 490, y: 95, frame: 26},
@@ -282,11 +282,23 @@ class Hero {
 
   changePosition(newPosition, events) {
     this._autoAction = undefined;
+    // check for platform events
     if (newPosition === "pos14"|| newPosition === "pos14_1") {
       events.emit(ACTIONS.friendPlatform);
     } else if (this._position === "pos14" || this._position === "pos14_1") {
       events.emit(ACTIONS.friendPlatformLeave);
     }
+    // check for floor
+    if (this._position === "pos23" && newPosition === "pos24") {
+      events.emit(ACTIONS.floor3);
+    } else if (this._position === "pos24" && newPosition === "pos23") {
+      events.emit(ACTIONS.floor2);
+    } else if (this._position === "pos16" && newPosition === "pos17") {
+      events.emit(ACTIONS.floor2);
+    } else if (this._position === "pos17" && newPosition === "pos16_1") {
+      events.emit(ACTIONS.floor1);
+    }
+
     this.changeSwordPositionIfApplies(this._position, newPosition);
     this._positions[this._position].sprite.setVisible(false);
     this._position = newPosition;
@@ -304,7 +316,7 @@ class Hero {
     }
   }
 
-  move(where, events) {
+  move(where, events, monkeyPos) {
     if(this._dead) {
       // you don't move while dead, you zombie :)
       return;
@@ -327,6 +339,20 @@ class Hero {
       } else if (newPosition === "fight:sword") {
         console.log("fight sword");
         this.swordFight(this._position);
+      }  else if (newPosition.includes("cond:")) {
+        //// switch to new position
+        //         this.changePosition(newPosition, events);
+        const cleanPos = newPosition.split(":")[1];
+        console.log("monkey pos is ", monkeyPos);
+        if (cleanPos === "pos25" && monkeyPos === "left") {
+            return false;
+        } else if (cleanPos === "pos26" && monkeyPos === "middle") {
+            return false;
+        } else if (cleanPos === "pos27" && monkeyPos === "right") {
+            return false;
+        }
+        console.warn("Moving from", this._position, "to", cleanPos, "monkey", monkeyPos);
+        this.changePosition(cleanPos, events);
       } else {
         // if sprite is moved, stop any automatic action
         if (this._autoAction) {

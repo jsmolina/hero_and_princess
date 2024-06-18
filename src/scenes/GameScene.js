@@ -20,6 +20,9 @@ class GameScene extends PointerBase {
     this.events.on(ACTIONS.death, this.deathStarts, this);
     this.events.on(ACTIONS.deathEnd, this.deathEnds, this);
     this.events.on(ACTIONS.noLives, this.noLives, this);
+    this.events.on(ACTIONS.floor3, this.heroFloor3, this);
+    this.events.on(ACTIONS.floor2, this.heroFloor2, this);
+    this.events.on(ACTIONS.floor1, this.heroFloor1, this);
 
     this.triggerTimer = this.time.addEvent({
         callback: this.heroTicker,
@@ -124,6 +127,16 @@ class GameScene extends PointerBase {
     console.warn("No more lives");
   }
 
+  heroFloor3() {
+    this.enemies.changeFloor(ACTIONS.floor3);
+  }
+  heroFloor2() {
+    this.enemies.changeFloor(ACTIONS.floor2);
+  }
+  heroFloor1() {
+    this.enemies.changeFloor(ACTIONS.floor1);
+  }
+
   update(time, delta) {
     super.update(time, delta);
     /*this.frameTime += delta
@@ -169,7 +182,7 @@ class GameScene extends PointerBase {
     const action = this.keysToAction();
     if (action) {
       // TODO take hero position here
-      this.hero.move(action, this.events);
+      this.hero.move(action, this.events, this.enemies.getMonkeyPos());
     }
   }
 
