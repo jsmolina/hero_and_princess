@@ -42,7 +42,7 @@ class Enemies {
     this._bird[newPosition].sprite.setVisible(true);
   }
 
-  _moveMonkeySprite(events, heroPos, currentNodeFsm, newNodeFsm) {
+  _moveMonkeySprite(currentNodeFsm, newNodeFsm) {
     // hide old
     this._monkey[currentNodeFsm.position].sprite.setVisible(false);
     if (currentNodeFsm.arm) {
@@ -81,18 +81,28 @@ class Enemies {
   moveMonkey(events, heroPos) {
     // TODO react to swordFight
     // TODO react to get
+
+
     if (this._heroFloor === ACTIONS.floor3) {
+      const currentNodeFsm = this._monkeyFightFsm[this._monkeyFsmPos];
       // monkey should fight and not move easily
-      const currentNodeFsm = this._monkeyFsm[this._monkeyFsmPos];
-      this._monkeyFsmPos = 0; // change if applies
-      const newNodeFsm = this._monkeyFsm[this._monkeyFsmPos];
-      this._moveMonkeySprite(events, heroPos, currentNodeFsm, newNodeFsm);
+      const doesHit = Math.random();
+      // firstFight
+      if (this._monkeyFight === "left") {
+        if (doesHit <= 0.25) {
+           this._monkeyFsmPos = 1;
+        } else {
+          this._monkeyFsmPos = 0;
+        }
+        const newNodeFsm = this._monkeyFightFsm[this._monkeyFsmPos];
+        this._moveMonkeySprite(currentNodeFsm, newNodeFsm);
+      }
     } else {
       const currentNodeFsm = this._monkeyFsm[this._monkeyFsmPos];
       this._monkeyFsmPos = (this._monkeyFsmPos + 1) % this._monkeyFsm.length;
       const newNodeFsm = this._monkeyFsm[this._monkeyFsmPos];
       this._monkeyPos = newNodeFsm.position;
-      this._moveMonkeySprite(events, heroPos, currentNodeFsm, newNodeFsm);
+      this._moveMonkeySprite(currentNodeFsm, newNodeFsm);
     }
   }
 
@@ -181,7 +191,20 @@ class Enemies {
   changeFloor(floor) {
     console.log("Switch to floor", floor);
     this._heroFloor = floor;
-    // TODO switch monkey fsm now
+    // switch monkey fsm to left
+    if (this._heroFloor === ACTIONS.floor3) {
+        const currentNodeFsm = this._monkeyFsm[this._monkeyFsmPos];
+        this._monkeyFight = "left";
+        this._monkeyFsmPos = 0; // change if applies
+        const newNodeFsm = this._monkeyFsm[this._monkeyFsmPos];
+        this._moveMonkeySprite(currentNodeFsm, newNodeFsm);
+    } else if (this._monkeyFight !== "") {
+        const currentNodeFsm = this._monkeyFightFsm[this._monkeyFsmPos];
+        this._monkeyFight = "";
+        this._monkeyFsmPos = 0;
+        const newNodeFsm = this._monkeyFsm[this._monkeyFsmPos];
+        this._moveMonkeySprite(currentNodeFsm, newNodeFsm);
+    }
   }
 
   paws() {
@@ -196,6 +219,7 @@ class Enemies {
     this._reseting = false;
     this._monkeyFsmPos = 0;
     this._monkeyLives = 4;
+    this._monkeyFight = "";
     this._heroFloor = ACTIONS.floor1;
     this._monkeyPos = "";
     this._middleBallPos = undefined;
@@ -225,6 +249,19 @@ class Enemies {
         {noAction: "pos1"},
       ),
     };
+
+    this._monkeyFightFsm = [
+      {position: "left", arm: "", drop: false},
+      {position: "left", arm: "leftTake", drop: false},
+      {position: "left", arm: "leftPunch", drop: false},
+      {position: "middle", arm: "", drop: false},
+      {position: "middle", arm: "middleTake", drop: false},
+      {position: "middle", arm: "middlePunch", drop: false},
+      {position: "right", arm: "", drop: false},
+      {position: "right", arm: "rightAngry", drop: false},
+      {position: "right", arm: "rightTake", drop: false},
+      {position: "right", arm: "rightPunch", drop: false},
+    ];
 
     this._monkeyFsm = [
       {position: "left", arm: "leftTake", drop: false},
