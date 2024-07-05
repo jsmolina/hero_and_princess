@@ -269,11 +269,14 @@ class Hero {
     return this._position;
   }
 
-  swordFight(currentPosition) {
-    console.log("swordFight");
+  swordFight(currentPosition, monkeyPos, events) {
     if (!this._currentSword.includes(currentPosition)) {
       console.log("not includes currentPosition", this._currentSword, currentPosition)
       this._currentSword = currentPosition;
+    }
+    if(currentPosition === "pos24" && monkeyPos === "left") {
+      console.warn("Fightin... emit event ");
+      events.emit(ACTIONS.swordHit);
     }
     this._swordPositions[this._currentSword].sprite.setVisible(false);
     this._currentSword = this._swordPositions[this._currentSword].actions.jump
@@ -337,8 +340,8 @@ class Hero {
           }
         }
       } else if (newPosition === "fight:sword") {
-        console.log("fight sword");
-        this.swordFight(this._position);
+        console.log("fight sword", this._position);
+        this.swordFight(this._position, monkeyPos, events);
       }  else if (newPosition.includes("cond:")) {
         //// switch to new position
         //         this.changePosition(newPosition, events);

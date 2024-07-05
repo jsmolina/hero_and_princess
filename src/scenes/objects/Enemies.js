@@ -58,7 +58,7 @@ class Enemies {
     }
 
     // no more than two balls at once
-    if (newNodeFsm.drop) {
+    if (newNodeFsm.drop && this._heroFloor !== ACTIONS.floor3) {
       // if !this._ballPos maybe? wait?
       const ballFsmPositionFromArm = (this._heroFloor === ACTIONS.floor1) ? {
         left: "hBtopScreenFallsLeft",
@@ -78,17 +78,33 @@ class Enemies {
     }
   }
 
+  swordHit() {
+    this._hits--;
+    console.warn("Swordhit in enemies...", this._hits)
+    if (this._hits <= 0) {
+      const currentNodeFsm = this._monkeyFightFsm[this._monkeyFsmPos];
+      this._hits = 3;
+      // hide monkey arm
+      this._allMonkeyArmPositions.forEach((pos) => {
+        this._monkeyArm[pos].sprite.setVisible(false);
+      });
+      if (this._monkeyPos === "left") {
+        console.log("Reached left all hits")
+        this._monkeyFsmPos = 3;
+        this._monkeyPos = "middle";
+      }
+      const newNodeFsm = this._monkeyFightFsm[this._monkeyFsmPos];
+      this._moveMonkeySprite(currentNodeFsm, newNodeFsm);
+    }
+  }
+
   moveMonkey(events, heroPos) {
-    // TODO react to swordFight
-    // TODO react to get
-
-
     if (this._heroFloor === ACTIONS.floor3) {
       const currentNodeFsm = this._monkeyFightFsm[this._monkeyFsmPos];
       // monkey should fight and not move easily
       const doesHit = Math.random();
       // firstFight
-      if (this._monkeyFight === "left") {
+      if (this._monkeyPos === "left") {
         if (doesHit <= 0.25) {
            this._monkeyFsmPos = 1;
         } else {
@@ -194,13 +210,14 @@ class Enemies {
     // switch monkey fsm to left
     if (this._heroFloor === ACTIONS.floor3) {
         const currentNodeFsm = this._monkeyFsm[this._monkeyFsmPos];
-        this._monkeyFight = "left";
+        this._monkeyPos = "left";
+        this._hits = 3;
         this._monkeyFsmPos = 0; // change if applies
         const newNodeFsm = this._monkeyFsm[this._monkeyFsmPos];
         this._moveMonkeySprite(currentNodeFsm, newNodeFsm);
     } else if (this._monkeyFight !== "") {
         const currentNodeFsm = this._monkeyFightFsm[this._monkeyFsmPos];
-        this._monkeyFight = "";
+        this._monkeyPos = "left";
         this._monkeyFsmPos = 0;
         const newNodeFsm = this._monkeyFsm[this._monkeyFsmPos];
         this._moveMonkeySprite(currentNodeFsm, newNodeFsm);
@@ -218,7 +235,7 @@ class Enemies {
   create(utils) {
     this._reseting = false;
     this._monkeyFsmPos = 0;
-    this._monkeyLives = 4;
+    this._hits = 4;
     this._monkeyFight = "";
     this._heroFloor = ACTIONS.floor1;
     this._monkeyPos = "";
@@ -251,10 +268,10 @@ class Enemies {
     };
 
     this._monkeyFightFsm = [
-      {position: "left", arm: "", drop: false},
+      {position: "left", arm: "leftDrop", drop: false},
       {position: "left", arm: "leftTake", drop: false},
       {position: "left", arm: "leftPunch", drop: false},
-      {position: "middle", arm: "", drop: false},
+      {position: "middle", arm: "middleDrop", drop: false},
       {position: "middle", arm: "middleTake", drop: false},
       {position: "middle", arm: "middlePunch", drop: false},
       {position: "right", arm: "", drop: false},

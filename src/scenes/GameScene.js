@@ -23,6 +23,7 @@ class GameScene extends PointerBase {
     this.events.on(ACTIONS.floor3, this.heroFloor3, this);
     this.events.on(ACTIONS.floor2, this.heroFloor2, this);
     this.events.on(ACTIONS.floor1, this.heroFloor1, this);
+    this.events.on(ACTIONS.swordHit, this.swordHit, this);
 
     this.triggerTimer = this.time.addEvent({
         callback: this.heroTicker,
@@ -135,6 +136,10 @@ class GameScene extends PointerBase {
   }
   heroFloor1() {
     this.enemies.changeFloor(ACTIONS.floor1);
+  }
+
+  swordHit() {
+    this.enemies.swordHit()
   }
 
   update(time, delta) {

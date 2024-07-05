@@ -14,6 +14,7 @@ const ACTIONS = {
   floor3: Symbol(),
   floor2: Symbol(),
   floor1: Symbol(),
+  swordHit: Symbol(),
   none: false,
 };
 
