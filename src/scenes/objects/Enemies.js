@@ -1,4 +1,4 @@
-import { ACTIONS } from "../constants";
+import { ACTIONS, DEFAULT_HITS } from "../constants";
 
 class Enemies {
   hideShow(visible) {
@@ -83,7 +83,7 @@ class Enemies {
     console.warn("Swordhit in enemies...", this._hits)
     if (this._hits <= 0) {
       const currentNodeFsm = this._monkeyFightFsm[this._monkeyFsmPos];
-      this._hits = 3;
+      this._hits = DEFAULT_HITS;
       // hide monkey arm
       this._allMonkeyArmPositions.forEach((pos) => {
         this._monkeyArm[pos].sprite.setVisible(false);
@@ -92,6 +92,10 @@ class Enemies {
         console.log("Reached left all hits")
         this._monkeyFsmPos = 3;
         this._monkeyPos = "middle";
+      } else if (this._monkeyPos === "middle") {
+        console.log("Reached middle all hits")
+        this._monkeyFsmPos = 6;
+        this._monkeyPos = "right";
       }
       const newNodeFsm = this._monkeyFightFsm[this._monkeyFsmPos];
       this._moveMonkeySprite(currentNodeFsm, newNodeFsm);
@@ -211,7 +215,7 @@ class Enemies {
     if (this._heroFloor === ACTIONS.floor3) {
         const currentNodeFsm = this._monkeyFsm[this._monkeyFsmPos];
         this._monkeyPos = "left";
-        this._hits = 3;
+        this._hits = DEFAULT_HITS;
         this._monkeyFsmPos = 0; // change if applies
         const newNodeFsm = this._monkeyFsm[this._monkeyFsmPos];
         this._moveMonkeySprite(currentNodeFsm, newNodeFsm);
@@ -235,7 +239,7 @@ class Enemies {
   create(utils) {
     this._reseting = false;
     this._monkeyFsmPos = 0;
-    this._hits = 4;
+    this._hits = DEFAULT_HITS;
     this._monkeyFight = "";
     this._heroFloor = ACTIONS.floor1;
     this._monkeyPos = "";

@@ -18,4 +18,6 @@ const ACTIONS = {
   none: false,
 };
 
-export { ACTIONS };
+const DEFAULT_HITS = 10;
+
+export { ACTIONS, DEFAULT_HITS };

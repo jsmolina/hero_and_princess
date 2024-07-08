@@ -274,7 +274,9 @@ class Hero {
       console.log("not includes currentPosition", this._currentSword, currentPosition)
       this._currentSword = currentPosition;
     }
-    if(currentPosition === "pos24" && monkeyPos === "left") {
+    if((currentPosition === "pos24" && monkeyPos === "left")
+      || (currentPosition === "pos25" && monkeyPos === "middle")
+      || (currentPosition === "pos26" && monkeyPos === "right")) {
       console.warn("Fightin... emit event ");
       events.emit(ACTIONS.swordHit);
     }
