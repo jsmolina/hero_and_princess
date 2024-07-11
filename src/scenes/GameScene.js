@@ -24,6 +24,8 @@ class GameScene extends PointerBase {
     this.events.on(ACTIONS.floor2, this.heroFloor2, this);
     this.events.on(ACTIONS.floor1, this.heroFloor1, this);
     this.events.on(ACTIONS.swordHit, this.swordHit, this);
+    this.events.on(ACTIONS.heroHitByMonkey, this.heroHitByMonkey, this);
+    this.events.on(ACTIONS.heroHitByMonkeyOnMiddleOrRight, this.heroHitByMonkeyOnMiddleOrRight, this);
 
     this.triggerTimer = this.time.addEvent({
         callback: this.heroTicker,
@@ -140,6 +142,17 @@ class GameScene extends PointerBase {
 
   swordHit() {
     this.enemies.swordHit()
+  }
+
+  heroHitByMonkey() {
+    console.warn("Hero hit by monkey!!!!");
+    this.deathStarts();
+  }
+
+  heroHitByMonkeyOnMiddleOrRight() {
+    console.warn("Hero hit by monkey on middle or right!", this.enemies.getMonkeyPos());
+    // simulates hero move to left by punch
+    this.hero.move(ACTIONS.left, this.events, this.enemies.getMonkeyPos());
   }
 
   update(time, delta) {

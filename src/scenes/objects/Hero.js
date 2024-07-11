@@ -13,6 +13,7 @@ class Hero {
   start() {
       this.hideShow(false);
       this._dead = false;
+      this._moving = false;
       this._position = "pos1";
       this._lives = 3;
       this._keyIsTaken = false;
@@ -23,6 +24,7 @@ class Hero {
   reset() {
     this.hideShow(true);
     this._dead = false;
+    this._moving = false;
   }
 
   death(events) {
@@ -350,11 +352,11 @@ class Hero {
         const cleanPos = newPosition.split(":")[1];
         console.log("monkey pos is ", monkeyPos);
         if (cleanPos === "pos25" && monkeyPos === "left") {
-            return false;
+          return false;
         } else if (cleanPos === "pos26" && monkeyPos === "middle") {
-            return false;
+          return false;
         } else if (cleanPos === "pos27" && monkeyPos === "right") {
-            return false;
+          return false;
         }
         console.warn("Moving from", this._position, "to", cleanPos, "monkey", monkeyPos);
         this.changePosition(cleanPos, events);

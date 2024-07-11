@@ -15,6 +15,8 @@ const ACTIONS = {
   floor2: Symbol(),
   floor1: Symbol(),
   swordHit: Symbol(),
+  heroHitByMonkey: Symbol(),
+  heroHitByMonkeyOnMiddleOrRight: Symbol(),
   none: false,
 };
 

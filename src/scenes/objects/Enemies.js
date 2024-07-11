@@ -17,6 +17,7 @@ class Enemies {
   }
 
   start() {
+    this._changingFloor = false;
     this._heroFloor = ACTIONS.floor1;
     this._reseting = false;
     this._pause = false;
@@ -27,8 +28,10 @@ class Enemies {
   }
 
   reset() {
+    this._changingFloor = false;
     this.hideShow(true);
     this._reseting = true;
+    this._monkeyFsmPosStr = "left";
   }
 
   moveBird(events, heroPos) {
@@ -82,45 +85,63 @@ class Enemies {
     this._hits--;
     console.warn("Swordhit in enemies...", this._hits)
     if (this._hits <= 0) {
-      const currentNodeFsm = this._monkeyFightFsm[this._monkeyFsmPos];
+      const currentNodeFsm = this._monkeyFightFsm2[this._monkeyFsmFightStr];
       this._hits = DEFAULT_HITS;
       // hide monkey arm
       this._allMonkeyArmPositions.forEach((pos) => {
         this._monkeyArm[pos].sprite.setVisible(false);
       });
       if (this._monkeyPos === "left") {
-        console.log("Reached left all hits")
-        this._monkeyFsmPos = 3;
+        console.log("Reached left all hits", currentNodeFsm.hits)
+        //this._monkeyFsmPos = 3;
+        this._monkeyFsmFightStr = currentNodeFsm.hits;
         this._monkeyPos = "middle";
       } else if (this._monkeyPos === "middle") {
         console.log("Reached middle all hits")
-        this._monkeyFsmPos = 6;
+        this._monkeyFsmFightStr = currentNodeFsm.hits;
         this._monkeyPos = "right";
       }
-      const newNodeFsm = this._monkeyFightFsm[this._monkeyFsmPos];
+      const newNodeFsm = this._monkeyFightFsm2[this._monkeyFsmFightStr];
       this._moveMonkeySprite(currentNodeFsm, newNodeFsm);
     }
   }
 
   moveMonkey(events, heroPos) {
+    if (this._changingFloor) {
+      return;
+    }
+
     if (this._heroFloor === ACTIONS.floor3) {
-      const currentNodeFsm = this._monkeyFightFsm[this._monkeyFsmPos];
+      const currentNodeFsm = this._monkeyFightFsm2[this._monkeyFsmFightStr];
+      const noAction = currentNodeFsm.noAction;
+      // move to left is hero is not in there
+        // if (this._monkeyPos === "middle") {
       // monkey should fight and not move easily
       const doesHit = Math.random();
       // firstFight
-      if (this._monkeyPos === "left") {
-        if (doesHit <= 0.25) {
-           this._monkeyFsmPos = 1;
-        } else {
-          this._monkeyFsmPos = 0;
-        }
-        const newNodeFsm = this._monkeyFightFsm[this._monkeyFsmPos];
-        this._moveMonkeySprite(currentNodeFsm, newNodeFsm);
+      this._monkeyFsmFightStr = (noAction.length < 2 || doesHit > 0.8) ?
+          noAction[0] : noAction[Math.floor(Math.random() * noAction.length)];
+
+      const newNodeFsm = this._monkeyFightFsm2[this._monkeyFsmFightStr];
+      this._monkeyPos = newNodeFsm.position;
+
+      if (currentNodeFsm.position === "left" && currentNodeFsm.arm === "leftPunch") {
+        this._hits = DEFAULT_HITS;
+        events.emit(ACTIONS.heroHitByMonkey);
+      } else if (currentNodeFsm.position === "middle" && currentNodeFsm.arm === "middlePunch") {
+        console.warn("new position!! ", this._monkeyPos)
+        this._hits = DEFAULT_HITS;
+        events.emit(ACTIONS.heroHitByMonkeyOnMiddleOrRight);
+      } else if (currentNodeFsm.position === "right" && currentNodeFsm.arm === "rightPunch") {
+        this._hits = DEFAULT_HITS;
+        events.emit(ACTIONS.heroHitByMonkeyOnMiddleOrRight);
       }
+      this._moveMonkeySprite(currentNodeFsm, newNodeFsm);
     } else {
-      const currentNodeFsm = this._monkeyFsm[this._monkeyFsmPos];
-      this._monkeyFsmPos = (this._monkeyFsmPos + 1) % this._monkeyFsm.length;
-      const newNodeFsm = this._monkeyFsm[this._monkeyFsmPos];
+      const currentNodeFsm = this._monkeyFsm2[this._monkeyFsmPosStr];
+      const noAction = currentNodeFsm.noAction;
+      this._monkeyFsmPosStr = noAction.length < 2 ? noAction[0] : noAction[Math.floor(Math.random() * noAction.length)];
+      const newNodeFsm = this._monkeyFsm2[this._monkeyFsmPosStr];
       this._monkeyPos = newNodeFsm.position;
       this._moveMonkeySprite(currentNodeFsm, newNodeFsm);
     }
@@ -209,23 +230,31 @@ class Enemies {
   }
 
   changeFloor(floor) {
-    console.log("Switch to floor", floor);
+    this._changingFloor = true;
+    console.warn("**** Switch to floor");
     this._heroFloor = floor;
     // switch monkey fsm to left
     if (this._heroFloor === ACTIONS.floor3) {
-        const currentNodeFsm = this._monkeyFsm[this._monkeyFsmPos];
-        this._monkeyPos = "left";
-        this._hits = DEFAULT_HITS;
-        this._monkeyFsmPos = 0; // change if applies
-        const newNodeFsm = this._monkeyFsm[this._monkeyFsmPos];
-        this._moveMonkeySprite(currentNodeFsm, newNodeFsm);
-    } else if (this._monkeyFight !== "") {
-        const currentNodeFsm = this._monkeyFightFsm[this._monkeyFsmPos];
-        this._monkeyPos = "left";
-        this._monkeyFsmPos = 0;
-        const newNodeFsm = this._monkeyFsm[this._monkeyFsmPos];
-        this._moveMonkeySprite(currentNodeFsm, newNodeFsm);
+      console.warn("**** To floor 3");
+      const currentNodeFsm = this._monkeyFsm2[this._monkeyFsmPosStr];
+      this._monkeyPos = "left";
+      this._monkeyFsmPosStr = "left";
+      this._monkeyFsmFightStr = "left";
+      this._hits = DEFAULT_HITS;
+      const newNodeFsm = this._monkeyFightFsm2[this._monkeyFsmFightStr];
+      this._moveMonkeySprite(currentNodeFsm, newNodeFsm);
+    } else if (this._monkeyFsmFightStr !== "") {
+      console.warn("**** From floor 3", this._monkeyFsmFightStr, this._monkeyFsmPosStr);
+      const currentNodeFsm = this._monkeyFightFsm2[this._monkeyFsmFightStr];
+      this._monkeyFsmFightStr = "";
+      this._monkeyPos = "left";
+      this._monkeyFsmPosStr = "left";
+      const newNodeFsm = this._monkeyFsm2[this._monkeyFsmPosStr];
+      this._moveMonkeySprite(currentNodeFsm, newNodeFsm);
+      console.warn("curr", currentNodeFsm);
+      console.warn("new", newNodeFsm);
     }
+    this._changingFloor = false;
   }
 
   paws() {
@@ -237,12 +266,13 @@ class Enemies {
   }
 
   create(utils) {
+    this._changingFloor = false;
     this._reseting = false;
-    this._monkeyFsmPos = 0;
     this._hits = DEFAULT_HITS;
-    this._monkeyFight = "";
     this._heroFloor = ACTIONS.floor1;
     this._monkeyPos = "";
+    this._monkeyFsmPosStr = "left";
+    this._monkeyFsmFightStr = "";
     this._middleBallPos = undefined;
     this._leftBallPos = undefined;
     this._birdPos = "pos1";
@@ -271,56 +301,32 @@ class Enemies {
       ),
     };
 
-    this._monkeyFightFsm = [
-      {position: "left", arm: "leftDrop", drop: false},
-      {position: "left", arm: "leftTake", drop: false},
-      {position: "left", arm: "leftPunch", drop: false},
-      {position: "middle", arm: "middleDrop", drop: false},
-      {position: "middle", arm: "middleTake", drop: false},
-      {position: "middle", arm: "middlePunch", drop: false},
-      {position: "right", arm: "", drop: false},
-      {position: "right", arm: "rightAngry", drop: false},
-      {position: "right", arm: "rightTake", drop: false},
-      {position: "right", arm: "rightPunch", drop: false},
-    ];
+    this._monkeyFightFsm2 = {
+      left: {position: "left", arm: "leftDrop", drop: false, noAction: ["left", "leftPunch1"], hits: "middle"},
+      leftPunch1: {position: "left", arm: "leftTake", drop: false, noAction: ["leftPunch2"], hits: "middle"},
+      leftPunch2: {position: "left", arm: "leftPunch", drop: false, noAction: ["left"], hits: "middle"},
 
-    this._monkeyFsm = [
-      {position: "left", arm: "leftTake", drop: false},
-      {position: "left", arm: "leftDrop", drop: true},
-      {position: "middle", arm: "middleTake", drop: false},
-      {position: "middle", arm: "middleDrop", drop: true},
-      {position: "left", arm: "leftTake", drop: false},
-      {position: "left", arm: "leftDrop", drop: true},
-      {position: "middle", arm: "middleTake", drop: false},
-      {position: "middle", arm: "middleDrop", drop: true},
-      {position: "left", arm: "leftDrop", drop: false},
-      {position: "left", arm: "leftDrop", drop: false},
-      {position: "middle", arm: "middleDrop", drop: false},
-      {position: "middle", arm: "middleDrop", drop: false},
-      {position: "left", arm: "leftTake", drop: false},
-      {position: "left", arm: "leftDrop", drop: true},
-      {position: "middle", arm: "middleTake", drop: false},
-      {position: "middle", arm: "middleDrop", drop: true},
-      {position: "right", arm: "", drop: false},
-      {position: "right", arm: "", drop: false},
-      {position: "middle", arm: "middleDrop", drop: false},
-      {position: "middle", arm: "middleDrop", drop: false},
-      {position: "left", arm: "leftDrop", drop: false},
-      {position: "left", arm: "leftDrop", drop: false},
-      {position: "left", arm: "leftDrop", drop: true},
-      {position: "middle", arm: "middleTake", drop: false},
-      {position: "middle", arm: "middleDrop", drop: true},
-      {position: "middle", arm: "middleTake", drop: false},
-      {position: "middle", arm: "middleDrop", drop: true},
-      {position: "middle", arm: "middleTake", drop: false},
-      {position: "middle", arm: "middleDrop", drop: true},
-      {position: "middle", arm: "middleTake", drop: false},
-      {position: "middle", arm: "middleDrop", drop: true},
-      {position: "middle", arm: "middleTake", drop: false},
-      {position: "middle", arm: "middleDrop", drop: true},
-      {position: "middle", arm: "middleTake", drop: false},
-      {position: "middle", arm: "middleDrop", drop: true},
-    ];
+      middle: {position: "middle", arm: "middleDrop", drop: false, noAction: ["middle", "middlePunch1"], hits: "right"},
+      middlePunch1: {position: "middle", arm: "middleTake", drop: false, noAction: ["middlePunch2"], hits: "right"},
+      middlePunch2: {position: "middle", arm: "middlePunch", drop: false, noAction: ["left"], hits: "right"},
+
+      right: {position: "right", arm: "", drop: false, noAction: ["right", "rightAngry", "rightPunch1"], hits: "killed"},
+      rightPunch1: {position: "right", arm: "rightTake", drop: false, noAction: ["rightPunch2"], hits: "killed"},
+      rightPunch2: {position: "right", arm: "rightPunch", drop: false, noAction: ["middle"], hits: "killed"},
+      rightAngry: {position: "right", arm: "rightAngry", drop: false, noAction: ["right"]},
+    };
+
+    this._monkeyFsm2 = {
+      left: {position: "left", arm: "leftDrop", drop: false, noAction: ["middle", "leftTakeDrop1"]},
+      right: {position: "right", arm: "", drop: false, noAction: ["right", "middle", "middle", "middle", "rightAngry"]},
+      middle: {position: "middle", arm: "middleDrop", drop: false, noAction: ["right", "left", "middle",
+          "middleTakeDrop1", "middleTakeDrop1", "middleTakeDrop1"]},
+      leftTakeDrop1: {position: "left", arm: "leftTake", drop: false, noAction: ["leftTakeDrop2"]},
+      leftTakeDrop2: {position: "left", arm: "leftDrop", drop: true, noAction: ["left", "middle"]},
+      middleTakeDrop1: {position: "middle", arm: "middleTake", drop: false, noAction: ["middleTakeDrop2"]},
+      middleTakeDrop2: {position: "middle", arm: "middleDrop", drop: true, noAction: ["right", "left"]},
+      rightAngry: {position: "right", arm: "rightAngry", drop: false, noAction: ["middle"]},
+    };
 
     this._monkey = {
       left: utils.addOthers(
@@ -429,7 +435,7 @@ class Enemies {
       ),
       hTtopScreenRight0: utils.addOthers(
         {x: 290, y: 320, frame: 39},
-        {noAction: ["hTtopScreenLeft1", "hTtopScreenRight1"]}
+        {noAction: ["hTtopScreenLeft1", "hTtopScreenRight1", "hTtopScreenRight1"]}
       ),
       hTtopScreenFallsMiddle1: utils.addOthers(
         {x: 285, y: 230, frame: 39},
