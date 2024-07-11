@@ -11,7 +11,15 @@ const ACTIONS = {
   noLives: Symbol(),
   friendPlatform: Symbol(),
   friendPlatformLeave: Symbol(),
+  floor3: Symbol(),
+  floor2: Symbol(),
+  floor1: Symbol(),
+  swordHit: Symbol(),
+  heroHitByMonkey: Symbol(),
+  heroHitByMonkeyOnMiddleOrRight: Symbol(),
   none: false,
 };
 
-export { ACTIONS };
+const DEFAULT_HITS = 10;
+
+export { ACTIONS, DEFAULT_HITS };
