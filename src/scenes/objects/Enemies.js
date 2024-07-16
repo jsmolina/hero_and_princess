@@ -25,6 +25,8 @@ class Enemies {
     // rest
     this._birdPos = "pos1";
     this._bird.pos1.sprite.setVisible(true);
+    this._middleBallPos = undefined;
+    this._leftBallPos = undefined;
   }
 
   reset() {
@@ -107,10 +109,6 @@ class Enemies {
   }
 
   moveMonkey(events, heroPos) {
-    if (this._changingFloor) {
-      return;
-    }
-
     if (this._heroFloor === ACTIONS.floor3) {
       const currentNodeFsm = this._monkeyFightFsm2[this._monkeyFsmFightStr];
       const noAction = currentNodeFsm.noAction;
@@ -230,7 +228,6 @@ class Enemies {
   }
 
   changeFloor(floor) {
-    this._changingFloor = true;
     console.warn("**** Switch to floor");
     this._heroFloor = floor;
     // switch monkey fsm to left
@@ -254,7 +251,6 @@ class Enemies {
       console.warn("curr", currentNodeFsm);
       console.warn("new", newNodeFsm);
     }
-    this._changingFloor = false;
   }
 
   paws() {
@@ -266,7 +262,6 @@ class Enemies {
   }
 
   create(utils) {
-    this._changingFloor = false;
     this._reseting = false;
     this._hits = DEFAULT_HITS;
     this._heroFloor = ACTIONS.floor1;
