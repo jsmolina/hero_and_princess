@@ -13,7 +13,7 @@ class Hero {
   start() {
       this.hideShow(false);
       this._dead = false;
-      this._moving = false;
+      this._wasUnlocked = false;
       this._position = "pos1";
       this._lives = 3;
       this._keyIsTaken = false;
@@ -27,7 +27,7 @@ class Hero {
   reset() {
     this.hideShow(true);
     this._dead = false;
-    this._moving = false;
+    this._wasUnlocked = false;
     this._faces.face1.sprite.setVisible(true);
     this._faces.face2.sprite.setVisible(true);
     this._faces.face3.sprite.setVisible(true);
@@ -55,6 +55,7 @@ class Hero {
       return;
     }
     this.hideShow(false);
+    this._wasUnlocked = false;
     this._dead = false;
     this._position = "pos1";
     this._keyIsTaken = false;
@@ -68,6 +69,7 @@ class Hero {
     this._swordIsTaken = false;
     this._keyIsTaken = false;
     this._dead = false;
+    this._wasUnlocked = false;
     this._flashCountsDead = 0;
     this._position = "pos1";
     this._currentSword = "";
@@ -286,13 +288,28 @@ class Hero {
     this._allSwordPositions = Object.keys(this._swordPositions);
   };
 
-  changeSwordPositionIfApplies(oldPosition, newPosition) {
+  _hasSwordInHands() {
+    return this._currentSword !== "pos26" && this._swordIsTaken;
+  }
+
+  _hasKeyInHands() {
+    return this._currentSword === "pos26" && this._keyIsTaken;
+  }
+
+  changeSwordPositionIfApplies(oldPosition, newPosition, events) {
     if (this._allSwordPositions.includes(this._currentSword)) {
       this._swordPositions[this._currentSword].sprite.setVisible(false);
     }
-    if (this._swordIsTaken && this._allSwordPositions.includes(newPosition)) {
-      this._currentSword = newPosition;
-      this._swordPositions[this._currentSword].sprite.setVisible(true);
+    if (this._allSwordPositions.includes(newPosition)) {
+      console.warn(this._currentSword, this._keyIsTaken, this._swordIsTaken);
+      if (this._hasSwordInHands() || this._hasKeyInHands()) {
+        this._currentSword = newPosition;
+        this._swordPositions[this._currentSword].sprite.setVisible(true);
+        if (this._hasKeyInHands() && !this._wasUnlocked) {
+          events.emit(ACTIONS.openLock);
+          this._wasUnlocked = true;
+        }
+      }
     }
   }
 
@@ -301,6 +318,9 @@ class Hero {
   }
 
   swordFight(currentPosition, monkeyPos, events) {
+    if (!this._swordIsTaken) {
+      return;
+    }
     if (!this._currentSword.includes(currentPosition)) {
       console.log("not includes currentPosition", this._currentSword, currentPosition)
       this._currentSword = currentPosition;
@@ -326,16 +346,16 @@ class Hero {
     }
     // check for floor
     if (this._position === "pos23" && newPosition === "pos24") {
-      events.emit(ACTIONS.floor3);
+      events.emit(ACTIONS.floor3, ACTIONS.up);
     } else if (this._position === "pos24" && newPosition === "pos23") {
-      events.emit(ACTIONS.floor2);
+      events.emit(ACTIONS.floor2, ACTIONS.down);
     } else if (this._position === "pos16" && newPosition === "pos17") {
-      events.emit(ACTIONS.floor2);
+      events.emit(ACTIONS.floor2, ACTIONS.up);
     } else if (this._position === "pos17" && newPosition === "pos16_1") {
-      events.emit(ACTIONS.floor1);
+      events.emit(ACTIONS.floor1, ACTIONS.down);
     }
 
-    this.changeSwordPositionIfApplies(this._position, newPosition);
+    this.changeSwordPositionIfApplies(this._position, newPosition, events);
     this._positions[this._position].sprite.setVisible(false);
     this._position = newPosition;
     this._positions[this._position].sprite.setVisible(true);
@@ -352,14 +372,23 @@ class Hero {
     }
   }
 
+  hit(events) {
+    this._wasHit = true;
+    const newPosition = this._positions[this._position].actions[ACTIONS.left];
+    if (newPosition) {
+      console.warn("New position is", newPosition);
+      this.changePosition(newPosition, events);
+    }
+    this._wasHit = false;
+  }
+
   move(where, events, monkeyPos) {
-    if(this._dead) {
+    if(this._dead || this._wasHit) {
       // you don't move while dead, you zombie :)
       return;
     }
     if (this._positions[this._position].actions[where]) {
       const newPosition = this._positions[this._position].actions[where];
-
       if (newPosition.includes("take:")) {
         if (newPosition.includes("take:key")) {
           if (!this._keyIsTaken) {

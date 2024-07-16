@@ -27,6 +27,8 @@ class Enemies {
     this._bird.pos1.sprite.setVisible(true);
     this._middleBallPos = undefined;
     this._leftBallPos = undefined;
+    this._flashCountsDead = 0;
+    this._dead = false;
   }
 
   reset() {
@@ -83,25 +85,48 @@ class Enemies {
     }
   }
 
+  death() {
+    this._flashCountsDead = 32;
+    this._dead = true;
+  }
+
+  deathEnd(events, heroPos) {
+    this._dead = false;
+    // TODO check now hero position so he deads if already there!
+    console.warn("DeathEnd", heroPos);
+    if (heroPos === "pos27") {
+      console.warn("End death and hero is already there, hero death");
+      events.emit(ACTIONS.heroHitByMonkey);
+    }
+
+  }
+
   swordHit() {
-    this._hits--;
+    if (this._hits > 0) {
+      this._hits--;
+    }
     console.warn("Swordhit in enemies...", this._hits)
     if (this._hits <= 0) {
       const currentNodeFsm = this._monkeyFightFsm2[this._monkeyFsmFightStr];
-      this._hits = DEFAULT_HITS;
       // hide monkey arm
       this._allMonkeyArmPositions.forEach((pos) => {
         this._monkeyArm[pos].sprite.setVisible(false);
       });
       if (this._monkeyPos === "left") {
-        console.log("Reached left all hits", currentNodeFsm.hits)
+        console.log("Reached left all hits");
         //this._monkeyFsmPos = 3;
+        this._hits = DEFAULT_HITS;
         this._monkeyFsmFightStr = currentNodeFsm.hits;
         this._monkeyPos = "middle";
       } else if (this._monkeyPos === "middle") {
-        console.log("Reached middle all hits")
+        console.log("Reached middle all hits");
+        this._hits = DEFAULT_HITS;
         this._monkeyFsmFightStr = currentNodeFsm.hits;
         this._monkeyPos = "right";
+      } else if (this._monkeyPos === "right") {
+        console.log("Reached right all hits, monkey (temporary) dead starts");
+        this._monkeyPos = "rightDead";
+        this.death();
       }
       const newNodeFsm = this._monkeyFightFsm2[this._monkeyFsmFightStr];
       this._moveMonkeySprite(currentNodeFsm, newNodeFsm);
@@ -111,6 +136,10 @@ class Enemies {
   moveMonkey(events, heroPos) {
     if (this._heroFloor === ACTIONS.floor3) {
       const currentNodeFsm = this._monkeyFightFsm2[this._monkeyFsmFightStr];
+      // do not move if dead
+      if (this._dead) {
+        return;
+      }
       const noAction = currentNodeFsm.noAction;
       // move to left is hero is not in there
         // if (this._monkeyPos === "middle") {
@@ -123,14 +152,17 @@ class Enemies {
       const newNodeFsm = this._monkeyFightFsm2[this._monkeyFsmFightStr];
       this._monkeyPos = newNodeFsm.position;
 
-      if (currentNodeFsm.position === "left" && currentNodeFsm.arm === "leftPunch") {
+      if (currentNodeFsm.position === "left" && currentNodeFsm.arm === "leftPunch" && heroPos === "pos24") {
+        // pos24
         this._hits = DEFAULT_HITS;
         events.emit(ACTIONS.heroHitByMonkey);
-      } else if (currentNodeFsm.position === "middle" && currentNodeFsm.arm === "middlePunch") {
+      } else if (currentNodeFsm.position === "middle" && currentNodeFsm.arm === "middlePunch" && heroPos === "pos25") {
+        // pos25
         console.warn("new position!! ", this._monkeyPos)
         this._hits = DEFAULT_HITS;
         events.emit(ACTIONS.heroHitByMonkeyOnMiddleOrRight);
-      } else if (currentNodeFsm.position === "right" && currentNodeFsm.arm === "rightPunch") {
+      } else if (currentNodeFsm.position === "right" && currentNodeFsm.arm === "rightPunch" && heroPos === "pos26") {
+        // pos26
         this._hits = DEFAULT_HITS;
         events.emit(ACTIONS.heroHitByMonkeyOnMiddleOrRight);
       }
@@ -210,6 +242,17 @@ class Enemies {
     return false;
   }
 
+  fastTick(events, heroPos) {
+    if (this._dead && this._flashCountsDead > 0) {
+      this._flashCountsDead--;
+      const currentNode = this._monkeyFightFsm2[this._monkeyFsmFightStr];
+      this._monkey[currentNode.position].sprite.setVisible((this._flashCountsDead % 2) === 0);
+      if (this._flashCountsDead === 0) {
+        this.deathEnd(events, heroPos);
+      }
+    }
+  }
+
   tick(events, heroPos) {
     if (this._reseting || this._pause) {
       return;
@@ -227,11 +270,15 @@ class Enemies {
     //TODO console.log("deads", this._middleBallPos, heroPos);
   }
 
-  changeFloor(floor) {
+  changeFloor(floor, direction) {
     console.warn("**** Switch to floor");
     this._heroFloor = floor;
+    this._flashCountsDead = 0;
+    this._dead = false;
+    // hide all
+    this.hideShow(false);
     // switch monkey fsm to left
-    if (this._heroFloor === ACTIONS.floor3) {
+    if (floor === ACTIONS.floor3) {
       console.warn("**** To floor 3");
       const currentNodeFsm = this._monkeyFsm2[this._monkeyFsmPosStr];
       this._monkeyPos = "left";
@@ -240,7 +287,7 @@ class Enemies {
       this._hits = DEFAULT_HITS;
       const newNodeFsm = this._monkeyFightFsm2[this._monkeyFsmFightStr];
       this._moveMonkeySprite(currentNodeFsm, newNodeFsm);
-    } else if (this._monkeyFsmFightStr !== "") {
+    } else if (floor === ACTIONS.floor2 && direction === ACTIONS.down) {
       console.warn("**** From floor 3", this._monkeyFsmFightStr, this._monkeyFsmPosStr);
       const currentNodeFsm = this._monkeyFightFsm2[this._monkeyFsmFightStr];
       this._monkeyFsmFightStr = "";

@@ -26,9 +26,10 @@ class GameScene extends PointerBase {
     this.events.on(ACTIONS.swordHit, this.swordHit, this);
     this.events.on(ACTIONS.heroHitByMonkey, this.heroHitByMonkey, this);
     this.events.on(ACTIONS.heroHitByMonkeyOnMiddleOrRight, this.heroHitByMonkeyOnMiddleOrRight, this);
+    this.events.on(ACTIONS.openLock, this.openLock, this);
 
     this.triggerTimer = this.time.addEvent({
-        callback: this.heroTicker,
+        callback: this.fastTicker,
         callbackScope: this,
         delay: 250, // 1000 = 1 second
         loop: true
@@ -87,8 +88,9 @@ class GameScene extends PointerBase {
     this.enemies.tick(this.events, this.hero.getPosition());
   }
 
-  heroTicker() {
+  fastTicker() {
     this.hero.tick(this.events);
+    this.enemies.fastTick(this.events, this.hero.getPosition());
   }
 
   keyHandler() {
@@ -130,18 +132,26 @@ class GameScene extends PointerBase {
     console.warn("No more lives");
   }
 
-  heroFloor3() {
-    this.enemies.changeFloor(ACTIONS.floor3);
+  heroFloor3(direction) {
+    this.enemies.changeFloor(ACTIONS.floor3, direction);
   }
-  heroFloor2() {
-    this.enemies.changeFloor(ACTIONS.floor2);
+  heroFloor2(direction) {
+    this.enemies.changeFloor(ACTIONS.floor2, direction);
   }
-  heroFloor1() {
-    this.enemies.changeFloor(ACTIONS.floor1);
+  heroFloor1(direction) {
+    this.enemies.changeFloor(ACTIONS.floor1, direction);
   }
 
   swordHit() {
     this.enemies.swordHit()
+  }
+
+  openLock() {
+    // key is taken false
+    console.warn("Opening lock...");
+    this.princess.openLock(this.events);
+    this.takeKeySound.play();
+    this.statics.leaveKey();
   }
 
   heroHitByMonkey() {
@@ -152,7 +162,7 @@ class GameScene extends PointerBase {
   heroHitByMonkeyOnMiddleOrRight() {
     console.warn("Hero hit by monkey on middle or right!", this.enemies.getMonkeyPos());
     // simulates hero move to left by punch
-    this.hero.move(ACTIONS.left, this.events, this.enemies.getMonkeyPos());
+    this.hero.hit(this.events);
   }
 
   update(time, delta) {

@@ -26,6 +26,10 @@ class Statics {
     this.objects.key.sprite.setVisible(false);
   }
 
+  leaveKey() {
+    this.objects.key.sprite.setVisible(true);
+  }
+
   takeSword() {
     this.objects.sword.sprite.setVisible(false);
   }
