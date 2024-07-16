@@ -317,12 +317,13 @@ class Enemies {
     };
 
     this._monkeyFsm2 = {
-      left: {position: "left", arm: "leftDrop", drop: false, noAction: ["middle", "leftTakeDrop1"]},
-      right: {position: "right", arm: "", drop: false, noAction: ["right", "middle", "middle", "middle", "rightAngry"]},
+      left: {position: "left", arm: "leftDrop", drop: false, noAction: ["middleTakeDrop1", "leftTakeDrop1"]},
+      right: {position: "right", arm: "", drop: false, noAction: ["right", "middleTakeDrop1", "middleTakeDrop1", "middleTakeDrop1",
+          "rightAngry"]},
       middle: {position: "middle", arm: "middleDrop", drop: false, noAction: ["right", "left", "middle",
           "middleTakeDrop1", "middleTakeDrop1", "middleTakeDrop1"]},
       leftTakeDrop1: {position: "left", arm: "leftTake", drop: false, noAction: ["leftTakeDrop2"]},
-      leftTakeDrop2: {position: "left", arm: "leftDrop", drop: true, noAction: ["left", "middle"]},
+      leftTakeDrop2: {position: "left", arm: "leftDrop", drop: true, noAction: ["left", "middleTakeDrop1", "middleTakeDrop1", "middle"]},
       middleTakeDrop1: {position: "middle", arm: "middleTake", drop: false, noAction: ["middleTakeDrop2"]},
       middleTakeDrop2: {position: "middle", arm: "middleDrop", drop: true, noAction: ["right", "left"]},
       rightAngry: {position: "right", arm: "rightAngry", drop: false, noAction: ["middle"]},

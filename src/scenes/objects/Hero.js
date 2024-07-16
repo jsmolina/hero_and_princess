@@ -19,12 +19,18 @@ class Hero {
       this._keyIsTaken = false;
       this._swordIsTaken = false;
       this._positions.pos1.sprite.setVisible(true);
+      this._faces.face1.sprite.setVisible(false);
+      this._faces.face2.sprite.setVisible(false);
+      this._faces.face3.sprite.setVisible(false);
   }
 
   reset() {
     this.hideShow(true);
     this._dead = false;
     this._moving = false;
+    this._faces.face1.sprite.setVisible(true);
+    this._faces.face2.sprite.setVisible(true);
+    this._faces.face3.sprite.setVisible(true);
   }
 
   death(events) {
@@ -35,6 +41,15 @@ class Hero {
 
   tryAgain(events) {
     if (!this._dead) {return false;}
+    // show faces of death
+    if (this._lives === 2) {
+      this._faces.face1.sprite.setVisible(true);
+    } else if (this._lives === 1) {
+      this._faces.face2.sprite.setVisible(true);
+    } else if (this._lives === 0) {
+      this._faces.face3.sprite.setVisible(true);
+    }
+
     if (this._lives === 0) {
       events.emit(ACTIONS.noLives);
       return;
@@ -59,6 +74,20 @@ class Hero {
     this._timeAutoAction = 0;
     // TODO maybe lives should go to gameScene?
     this._lives = 3;
+    this._faces = {
+      face1: utils.addOthers({x: 140, y: 60, frame: 36, visible: true},
+        {}
+      ),
+      face2: utils.addOthers({x: 180, y: 60, frame: 36, visible: true},
+        {}
+      ),
+      face3: utils.addOthers({x: 220, y: 60, frame: 36, visible: true},
+        {}
+      ),
+      gameA: utils.addOthers({x: 60, y: 80, frame: 44, scale: 0.4, visible: true},
+        {}
+      ),
+    };
     // this should be only visible is sword is taken!
     this._swordPositions = {
       pos17: utils.addOthers({x: 483, y: 298, frame: 23},
