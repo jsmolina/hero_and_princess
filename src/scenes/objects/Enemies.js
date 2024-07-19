@@ -102,6 +102,11 @@ class Enemies {
   }
 
   swordHit() {
+    if (["leftPunch2", "middlePunch2", "rightPunch2"].includes(this._monkeyFsmFightStr)) {
+      // no sword hits if monkey hits first!
+      return;
+    }
+
     if (this._hits > 0) {
       this._hits--;
     }
@@ -146,8 +151,8 @@ class Enemies {
       // monkey should fight and not move easily
       const doesHit = Math.random();
       // firstFight
-      this._monkeyFsmFightStr = (noAction.length < 2 || doesHit > 0.8) ?
-          noAction[0] : noAction[Math.floor(Math.random() * noAction.length)];
+      this._monkeyFsmFightStr = (doesHit > 0.8) ?
+          noAction[0] : noAction[1];
 
       const newNodeFsm = this._monkeyFightFsm2[this._monkeyFsmFightStr];
       this._monkeyPos = newNodeFsm.position;
@@ -345,17 +350,17 @@ class Enemies {
 
     this._monkeyFightFsm2 = {
       left: {position: "left", arm: "leftDrop", drop: false, noAction: ["left", "leftPunch1"], hits: "middle"},
-      leftPunch1: {position: "left", arm: "leftTake", drop: false, noAction: ["leftPunch2"], hits: "middle"},
-      leftPunch2: {position: "left", arm: "leftPunch", drop: false, noAction: ["left"], hits: "middle"},
+      leftPunch1: {position: "left", arm: "leftTake", drop: false, noAction: ["leftPunch2", "leftPunch2"], hits: "middle"},
+      leftPunch2: {position: "left", arm: "leftPunch", drop: false, noAction: ["left", "left"], hits: "middle"},
 
       middle: {position: "middle", arm: "middleDrop", drop: false, noAction: ["middle", "middlePunch1"], hits: "right"},
-      middlePunch1: {position: "middle", arm: "middleTake", drop: false, noAction: ["middlePunch2"], hits: "right"},
-      middlePunch2: {position: "middle", arm: "middlePunch", drop: false, noAction: ["left"], hits: "right"},
+      middlePunch1: {position: "middle", arm: "middleTake", drop: false, noAction: ["middlePunch2", "middlePunch2"], hits: "right"},
+      middlePunch2: {position: "middle", arm: "middlePunch", drop: false, noAction: ["left", "left"], hits: "right"},
 
       right: {position: "right", arm: "", drop: false, noAction: ["right", "rightAngry", "rightPunch1"], hits: "killed"},
-      rightPunch1: {position: "right", arm: "rightTake", drop: false, noAction: ["rightPunch2"], hits: "killed"},
-      rightPunch2: {position: "right", arm: "rightPunch", drop: false, noAction: ["middle"], hits: "killed"},
-      rightAngry: {position: "right", arm: "rightAngry", drop: false, noAction: ["right"]},
+      rightPunch1: {position: "right", arm: "rightTake", drop: false, noAction: ["rightPunch2", "rightPunch2"], hits: "killed"},
+      rightPunch2: {position: "right", arm: "rightPunch", drop: false, noAction: ["middle", "middle"], hits: "killed"},
+      rightAngry: {position: "right", arm: "rightAngry", drop: false, noAction: ["right", "right"]},
     };
 
     this._monkeyFsm2 = {
@@ -363,7 +368,9 @@ class Enemies {
       right: {position: "right", arm: "", drop: false, noAction: ["right", "middleTakeDrop1", "middleTakeDrop1", "middleTakeDrop1",
           "rightAngry"]},
       middle: {position: "middle", arm: "middleDrop", drop: false, noAction: ["right", "left", "middle",
-          "middleTakeDrop1", "middleTakeDrop1", "middleTakeDrop1"]},
+          "middleTakeDrop1", "middleTakeDrop1", "middleTakeDrop1", "middleTakeDrop1",
+          "middleTakeDrop1", "middleTakeDrop1", "middleTakeDrop1", "middleTakeDrop1",
+          "middleTakeDrop1"]},
       leftTakeDrop1: {position: "left", arm: "leftTake", drop: false, noAction: ["leftTakeDrop2"]},
       leftTakeDrop2: {position: "left", arm: "leftDrop", drop: true, noAction: ["left", "middleTakeDrop1", "middleTakeDrop1", "middle"]},
       middleTakeDrop1: {position: "middle", arm: "middleTake", drop: false, noAction: ["middleTakeDrop2"]},

@@ -18,6 +18,7 @@ const ACTIONS = {
   heroHitByMonkey: Symbol(),
   heroHitByMonkeyOnMiddleOrRight: Symbol(),
   openLock: Symbol(),
+  openLockFinished: Symbol(),
   none: false,
 };
 

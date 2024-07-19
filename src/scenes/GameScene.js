@@ -27,6 +27,7 @@ class GameScene extends PointerBase {
     this.events.on(ACTIONS.heroHitByMonkey, this.heroHitByMonkey, this);
     this.events.on(ACTIONS.heroHitByMonkeyOnMiddleOrRight, this.heroHitByMonkeyOnMiddleOrRight, this);
     this.events.on(ACTIONS.openLock, this.openLock, this);
+    this.events.on(ACTIONS.openLockFinished, this.openLockFinished, this);
 
     this.triggerTimer = this.time.addEvent({
         callback: this.fastTicker,
@@ -139,6 +140,7 @@ class GameScene extends PointerBase {
     this.enemies.changeFloor(ACTIONS.floor2, direction);
   }
   heroFloor1(direction) {
+    this.statics.leaveSword();
     this.enemies.changeFloor(ACTIONS.floor1, direction);
   }
 
@@ -149,8 +151,12 @@ class GameScene extends PointerBase {
   openLock() {
     // key is taken false
     console.warn("Opening lock...");
+    this.statics.openLock();
     this.princess.openLock(this.events);
     this.takeKeySound.play();
+  }
+
+  openLockFinished() {
     this.statics.leaveKey();
   }
 

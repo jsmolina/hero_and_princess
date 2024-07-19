@@ -69,8 +69,9 @@ class Hero {
     this._swordIsTaken = false;
     this._keyIsTaken = false;
     this._dead = false;
-    this._wasUnlocked = false;
     this._flashCountsDead = 0;
+    this._isOpening = false;
+    this._openCounts = 0;
     this._position = "pos1";
     this._currentSword = "";
     this._timeAutoAction = 0;
@@ -139,11 +140,6 @@ class Hero {
       pos26_2: utils.addOthers(
         {x: 400, y: 120, frame: 31},
         {right: "pos27", left: "pos25", jump: "pos26"}
-      ),
-      // opened only if key is owned
-      pos27: utils.addOthers(
-        {x: 540, y: 110, frame: 1, scale: 0.20},
-        {right: "openKey", left: "pos26"}
       ),
     };
     this._positions = {
@@ -305,10 +301,6 @@ class Hero {
       if (this._hasSwordInHands() || this._hasKeyInHands()) {
         this._currentSword = newPosition;
         this._swordPositions[this._currentSword].sprite.setVisible(true);
-        if (this._hasKeyInHands() && !this._wasUnlocked) {
-          events.emit(ACTIONS.openLock);
-          this._wasUnlocked = true;
-        }
       }
     }
   }
@@ -336,7 +328,7 @@ class Hero {
     this._swordPositions[this._currentSword].sprite.setVisible(true);
   }
 
-  changePosition(newPosition, events) {
+  _changePosition(newPosition, events) {
     this._autoAction = undefined;
     // check for platform events
     if (newPosition === "pos14"|| newPosition === "pos14_1") {
@@ -352,6 +344,8 @@ class Hero {
     } else if (this._position === "pos16" && newPosition === "pos17") {
       events.emit(ACTIONS.floor2, ACTIONS.up);
     } else if (this._position === "pos17" && newPosition === "pos16_1") {
+      // leaves the sword to his place going down
+      this._swordIsTaken = false;
       events.emit(ACTIONS.floor1, ACTIONS.down);
     }
 
@@ -377,13 +371,13 @@ class Hero {
     const newPosition = this._positions[this._position].actions[ACTIONS.left];
     if (newPosition) {
       console.warn("New position is", newPosition);
-      this.changePosition(newPosition, events);
+      this._changePosition(newPosition, events);
     }
     this._wasHit = false;
   }
 
   move(where, events, monkeyPos) {
-    if(this._dead || this._wasHit) {
+    if(this._dead || this._wasHit || this._openCounts > 0) {
       // you don't move while dead, you zombie :)
       return;
     }
@@ -400,6 +394,10 @@ class Hero {
             this._swordIsTaken = true;
             events.emit(ACTIONS.takeSword);
           }
+        } else if (newPosition.includes("take:openKey") && this._keyIsTaken) {
+          console.log("Right has open key");
+          events.emit(ACTIONS.openLock);
+          this._openCounts = 10;
         }
       } else if (newPosition === "fight:sword") {
         console.log("fight sword", this._position);
@@ -417,7 +415,7 @@ class Hero {
           return false;
         }
         console.warn("Moving from", this._position, "to", cleanPos, "monkey", monkeyPos);
-        this.changePosition(cleanPos, events);
+        this._changePosition(cleanPos, events);
       } else {
         // if sprite is moved, stop any automatic action
         if (this._autoAction) {
@@ -425,7 +423,7 @@ class Hero {
           this._autoAction = undefined;
         }
         // switch to new position
-        this.changePosition(newPosition, events);
+        this._changePosition(newPosition, events);
       }
     }
   }
@@ -442,10 +440,21 @@ class Hero {
         events.emit(ACTIONS.deathEnd);
       }
     }
+
+    if (this._openCounts > 0) {
+      this._openCounts--;
+      console.log("removing opencounts", this._openCounts);
+      if (this._openCounts === 0) {
+        console.log("end open lock");
+        this._keyIsTaken = false;
+        events.emit(ACTIONS.openLockFinished);
+      }
+    }
+
     if (this._autoAction) {
       const millis = Date.now() - this._timeAutoAction;
       if (millis >= 800) {
-        this.changePosition(this._autoAction, events);
+        this._changePosition(this._autoAction, events);
       }
     }
   }

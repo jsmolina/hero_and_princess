@@ -34,9 +34,9 @@ class Princess {
     if (this._locksStatus === 3) {
       this._locks.lock1.sprite.setVisible(false);
     } else if (this._locksStatus === 2) {
-      this._locks.lock2.sprite.setVisible(false);
-    } else if (this._locksStatus === 1) {
       this._locks.lock3.sprite.setVisible(false);
+    } else if (this._locksStatus === 1) {
+      this._locks.lock2.sprite.setVisible(false);
     } else if (this._locksStatus === 0) {
       // TODO show princess outside of place now
       this._locks.lock4.sprite.setVisible(false);
