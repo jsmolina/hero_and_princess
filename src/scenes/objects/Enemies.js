@@ -193,9 +193,11 @@ class Enemies {
         console.warn("no actualNode found for ", newPos);
         return;
       }
+      console.log("heropos", heroPos, newPos);
       actualNode.sprite.setVisible(false);
       const noAction = actualNode.actions.noAction;
-      const noActionPos = noAction.length < 2 ? noAction[0] : noAction[Math.floor(Math.random() * noAction.length)];
+      const noActionPos =
+        noAction.length < 2 || !["pos17", "pos18", "pos19", "pos20", "pos21"].includes(heroPos) ? noAction[0] : noAction[1];
       if (noActionPos) {
         if(!this._ball[noActionPos]) {
           console.warn("no automatic node found", newPos);
@@ -485,7 +487,7 @@ class Enemies {
       ),
       hTtopScreenRight0: utils.addOthers(
         {x: 290, y: 320, frame: 39},
-        {noAction: ["hTtopScreenLeft1", "hTtopScreenRight1", "hTtopScreenRight1"]}
+        {noAction: ["hTtopScreenLeft1", "hTtopScreenRight1"], death: ["pos21"]}
       ),
       hTtopScreenFallsMiddle1: utils.addOthers(
         {x: 285, y: 230, frame: 39},

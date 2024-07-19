@@ -214,7 +214,7 @@ class GameScene extends PointerBase {
     }
 
     const action = this.keysToAction();
-    if (action) {
+    if (action && !this.reseted) {
       // TODO take hero position here
       this.hero.move(action, this.events, this.enemies.getMonkeyPos());
     }

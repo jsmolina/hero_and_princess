@@ -27,7 +27,6 @@ class Hero {
   reset() {
     this.hideShow(true);
     this._dead = false;
-    this._wasUnlocked = false;
     this._faces.face1.sprite.setVisible(true);
     this._faces.face2.sprite.setVisible(true);
     this._faces.face3.sprite.setVisible(true);
