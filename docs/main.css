@@ -13,7 +13,7 @@
 
 @media only screen and (max-width: 1920px) {
     canvas {
-        height: 640px;
+        height: 100vh;
     }
 
     .game-area {
@@ -28,7 +28,7 @@
 
 @media only screen and (max-width: 1280px) {
     canvas {
-        height: 600px;
+        height: 100vh;
     }
 
     .game-area {
@@ -43,7 +43,7 @@
 
 @media only screen and (max-width: 1024px) {
     canvas {
-        height: 500px;
+        height: 100vh;
     }
 
     .game-area {
@@ -51,14 +51,11 @@
         width: 500px;
     }
 
-    .bg-area img {
-        width: 440px;
-    }
 }
 
 @media only screen and (max-width: 600px) {
     canvas {
-        height: 450px;
+        height: 100vh;
     }
     .bg-area img {
         width: 400px;
