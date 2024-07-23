@@ -12,5 +12,12 @@
 }
 
 canvas {
-    margin-left: 25%;
+}
+.game-area {
+    margin: auto;
+    width: 600px;
+}
+
+body {
+    background-color: #5f0d11;
 }

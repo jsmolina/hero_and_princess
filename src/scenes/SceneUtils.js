@@ -11,7 +11,7 @@ const SceneUtils = (physics) => {
       return {sprite, actions: {left, right, up, down, jump, noAction, death}};
     },
 
-    addOthers: ({x, y, frame, scale = 0.25, visible = false},
+    addOthers: ({x, y, frame, scale = 0.25, visible = false, rotate = 0},
                 {left, right, up, down, jump, noAction, death}) => {
       const sprite = physics.add.sprite(x, y, 'others');
       sprite.body.setAllowGravity(false);
@@ -19,6 +19,7 @@ const SceneUtils = (physics) => {
       sprite.setFrame(frame);
       sprite.setVisible(visible);
       sprite.setScale(scale);
+      sprite.setRotation(rotate);
       return {sprite, actions: {left, right, up, down, jump, noAction, death}};
     },
   };

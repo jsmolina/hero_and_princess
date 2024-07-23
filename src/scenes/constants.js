@@ -17,9 +17,12 @@ const ACTIONS = {
   swordHit: Symbol(),
   heroHitByMonkey: Symbol(),
   heroHitByMonkeyOnMiddleOrRight: Symbol(),
+  openLock: Symbol(),
+  openLockFinished: Symbol(),
+  princessFree: Symbol(),
   none: false,
 };
 
-const DEFAULT_HITS = 10;
+const DEFAULT_HITS = 9; // 9
 
 export { ACTIONS, DEFAULT_HITS };

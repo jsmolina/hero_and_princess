@@ -26,8 +26,21 @@ class Statics {
     this.objects.key.sprite.setVisible(false);
   }
 
+  leaveKey() {
+    this.objects.keyOnLock.sprite.setVisible(false);
+    this.objects.key.sprite.setVisible(true);
+  }
+
+  openLock() {
+    this.objects.keyOnLock.sprite.setVisible(true);
+  }
+
   takeSword() {
     this.objects.sword.sprite.setVisible(false);
+  }
+
+  leaveSword() {
+    this.objects.sword.sprite.setVisible(true);
   }
 
   showHideFriendPlatform(visible) {
@@ -91,6 +104,10 @@ class Statics {
       ),
       sword: utils.addOthers(
         {x: 580, y: 380, frame: 10, visible: true},
+        {}
+      ),
+      keyOnLock: utils.addOthers(
+        {x: 540, y: 110, frame: 1, scale: 0.20},
         {}
       ),
     };

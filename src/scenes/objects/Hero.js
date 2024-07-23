@@ -13,18 +13,24 @@ class Hero {
   start() {
       this.hideShow(false);
       this._dead = false;
-      this._moving = false;
+      this._wasUnlocked = false;
       this._position = "pos1";
       this._lives = 3;
       this._keyIsTaken = false;
       this._swordIsTaken = false;
       this._positions.pos1.sprite.setVisible(true);
+      this._faces.face1.sprite.setVisible(false);
+      this._faces.face2.sprite.setVisible(false);
+      this._faces.face3.sprite.setVisible(false);
+      console.log("Detecting hero     ....  [PRINCE]");
   }
 
   reset() {
     this.hideShow(true);
     this._dead = false;
-    this._moving = false;
+    this._faces.face1.sprite.setVisible(true);
+    this._faces.face2.sprite.setVisible(true);
+    this._faces.face3.sprite.setVisible(true);
   }
 
   death(events) {
@@ -33,8 +39,18 @@ class Hero {
     this._lives--;
   }
 
-  tryAgain(events) {
-    if (!this._dead) {return false;}
+  tryAgain(events, force) {
+    if (!this._dead && !force) {return false;}
+    console.warn("Try again!");
+    // show faces of death
+    if (this._lives === 2) {
+      this._faces.face1.sprite.setVisible(true);
+    } else if (this._lives === 1) {
+      this._faces.face2.sprite.setVisible(true);
+    } else if (this._lives === 0) {
+      this._faces.face3.sprite.setVisible(true);
+    }
+
     if (this._lives === 0) {
       events.emit(ACTIONS.noLives);
       return;
@@ -54,11 +70,27 @@ class Hero {
     this._keyIsTaken = false;
     this._dead = false;
     this._flashCountsDead = 0;
+    this._pause = false;
+    this._openCounts = 0;
     this._position = "pos1";
     this._currentSword = "";
     this._timeAutoAction = 0;
     // TODO maybe lives should go to gameScene?
     this._lives = 3;
+    this._faces = {
+      face1: utils.addOthers({x: 140, y: 60, frame: 36, visible: true},
+        {}
+      ),
+      face2: utils.addOthers({x: 180, y: 60, frame: 36, visible: true},
+        {}
+      ),
+      face3: utils.addOthers({x: 220, y: 60, frame: 36, visible: true},
+        {}
+      ),
+      gameA: utils.addOthers({x: 60, y: 80, frame: 44, scale: 0.4, visible: true},
+        {}
+      ),
+    };
     // this should be only visible is sword is taken!
     this._swordPositions = {
       pos17: utils.addOthers({x: 483, y: 298, frame: 23},
@@ -108,11 +140,6 @@ class Hero {
       pos26_2: utils.addOthers(
         {x: 400, y: 120, frame: 31},
         {right: "pos27", left: "pos25", jump: "pos26"}
-      ),
-      // opened only if key is owned
-      pos27: utils.addOthers(
-        {x: 540, y: 110, frame: 1, scale: 0.20},
-        {right: "openKey", left: "pos26"}
       ),
     };
     this._positions = {
@@ -206,7 +233,7 @@ class Hero {
       ),
       pos16_1: utils.addHeroTo(
         {x: 510, y: 360, frame: 15},
-        {noAction: "pos15_1", right: "take:sword"}
+        {noAction: "pos15_1"}
       ),
       pos17: utils.addHeroTo(
         {x: 510, y: 260, frame: 16},
@@ -257,13 +284,23 @@ class Hero {
     this._allSwordPositions = Object.keys(this._swordPositions);
   };
 
-  changeSwordPositionIfApplies(oldPosition, newPosition) {
+  _hasSwordInHands() {
+    return this._currentSword !== "pos26" && this._swordIsTaken;
+  }
+
+  _hasKeyInHands() {
+    return this._currentSword === "pos26" && this._keyIsTaken;
+  }
+
+  changeSwordPositionIfApplies(oldPosition, newPosition, events) {
     if (this._allSwordPositions.includes(this._currentSword)) {
       this._swordPositions[this._currentSword].sprite.setVisible(false);
     }
-    if (this._swordIsTaken && this._allSwordPositions.includes(newPosition)) {
-      this._currentSword = newPosition;
-      this._swordPositions[this._currentSword].sprite.setVisible(true);
+    if (this._allSwordPositions.includes(newPosition)) {
+      if (this._hasSwordInHands() || this._hasKeyInHands()) {
+        this._currentSword = newPosition;
+        this._swordPositions[this._currentSword].sprite.setVisible(true);
+      }
     }
   }
 
@@ -272,6 +309,9 @@ class Hero {
   }
 
   swordFight(currentPosition, monkeyPos, events) {
+    if (!this._swordIsTaken) {
+      return;
+    }
     if (!this._currentSword.includes(currentPosition)) {
       console.log("not includes currentPosition", this._currentSword, currentPosition)
       this._currentSword = currentPosition;
@@ -279,7 +319,6 @@ class Hero {
     if((currentPosition === "pos24" && monkeyPos === "left")
       || (currentPosition === "pos25" && monkeyPos === "middle")
       || (currentPosition === "pos26" && monkeyPos === "right")) {
-      console.warn("Fightin... emit event ");
       events.emit(ACTIONS.swordHit);
     }
     this._swordPositions[this._currentSword].sprite.setVisible(false);
@@ -287,7 +326,7 @@ class Hero {
     this._swordPositions[this._currentSword].sprite.setVisible(true);
   }
 
-  changePosition(newPosition, events) {
+  _changePosition(newPosition, events) {
     this._autoAction = undefined;
     // check for platform events
     if (newPosition === "pos14"|| newPosition === "pos14_1") {
@@ -297,16 +336,18 @@ class Hero {
     }
     // check for floor
     if (this._position === "pos23" && newPosition === "pos24") {
-      events.emit(ACTIONS.floor3);
+      events.emit(ACTIONS.floor3, ACTIONS.up);
     } else if (this._position === "pos24" && newPosition === "pos23") {
-      events.emit(ACTIONS.floor2);
+      events.emit(ACTIONS.floor2, ACTIONS.down);
     } else if (this._position === "pos16" && newPosition === "pos17") {
-      events.emit(ACTIONS.floor2);
+      events.emit(ACTIONS.floor2, ACTIONS.up);
     } else if (this._position === "pos17" && newPosition === "pos16_1") {
-      events.emit(ACTIONS.floor1);
+      // leaves the sword to his place going down
+      this._swordIsTaken = false;
+      events.emit(ACTIONS.floor1, ACTIONS.down);
     }
 
-    this.changeSwordPositionIfApplies(this._position, newPosition);
+    this.changeSwordPositionIfApplies(this._position, newPosition, events);
     this._positions[this._position].sprite.setVisible(false);
     this._position = newPosition;
     this._positions[this._position].sprite.setVisible(true);
@@ -323,14 +364,22 @@ class Hero {
     }
   }
 
+  hit(events) {
+    this._wasHit = true;
+    const newPosition = this._positions[this._position].actions[ACTIONS.left];
+    if (newPosition) {
+      this._changePosition(newPosition, events);
+    }
+    this._wasHit = false;
+  }
+
   move(where, events, monkeyPos) {
-    if(this._dead) {
+    if(this._dead || this._wasHit || this._openCounts > 0 || this._pause) {
       // you don't move while dead, you zombie :)
       return;
     }
     if (this._positions[this._position].actions[where]) {
       const newPosition = this._positions[this._position].actions[where];
-
       if (newPosition.includes("take:")) {
         if (newPosition.includes("take:key")) {
           if (!this._keyIsTaken) {
@@ -342,15 +391,16 @@ class Hero {
             this._swordIsTaken = true;
             events.emit(ACTIONS.takeSword);
           }
+        } else if (newPosition.includes("take:openKey") && this._keyIsTaken) {
+          events.emit(ACTIONS.openLock);
+          this._openCounts = 10;
         }
       } else if (newPosition === "fight:sword") {
-        console.log("fight sword", this._position);
         this.swordFight(this._position, monkeyPos, events);
       }  else if (newPosition.includes("cond:")) {
         //// switch to new position
         //         this.changePosition(newPosition, events);
         const cleanPos = newPosition.split(":")[1];
-        console.log("monkey pos is ", monkeyPos);
         if (cleanPos === "pos25" && monkeyPos === "left") {
           return false;
         } else if (cleanPos === "pos26" && monkeyPos === "middle") {
@@ -358,8 +408,7 @@ class Hero {
         } else if (cleanPos === "pos27" && monkeyPos === "right") {
           return false;
         }
-        console.warn("Moving from", this._position, "to", cleanPos, "monkey", monkeyPos);
-        this.changePosition(cleanPos, events);
+        this._changePosition(cleanPos, events);
       } else {
         // if sprite is moved, stop any automatic action
         if (this._autoAction) {
@@ -367,7 +416,7 @@ class Hero {
           this._autoAction = undefined;
         }
         // switch to new position
-        this.changePosition(newPosition, events);
+        this._changePosition(newPosition, events);
       }
     }
   }
@@ -384,10 +433,19 @@ class Hero {
         events.emit(ACTIONS.deathEnd);
       }
     }
+
+    if (this._openCounts > 0) {
+      this._openCounts--;
+      if (this._openCounts === 0) {
+        this._keyIsTaken = false;
+        events.emit(ACTIONS.openLockFinished);
+      }
+    }
+
     if (this._autoAction) {
       const millis = Date.now() - this._timeAutoAction;
       if (millis >= 800) {
-        this.changePosition(this._autoAction, events);
+        this._changePosition(this._autoAction, events);
       }
     }
   }

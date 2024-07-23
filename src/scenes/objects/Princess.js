@@ -1,36 +1,62 @@
+import {ACTIONS} from "../constants";
+
 class Princess {
   unlock() {
-    this.locksStatus--;
-    if (this.locksStatus === 0) {
+    this._locksStatus--;
+    if (this._locksStatus === 0) {
       // free princess
     }
   }
   hideShow(visible) {
-    this.allPositions.forEach((pos) => {
-      this.positions[pos].sprite.setVisible(visible);
+    this._allPositions.forEach((pos) => {
+      this._positions[pos].sprite.setVisible(visible);
     });
-    this.allLocks.forEach((pos) => {
-      this.locks[pos].sprite.setVisible(visible);
+    this._allLocks.forEach((pos) => {
+      this._locks[pos].sprite.setVisible(visible);
     });
   }
 
   start() {
     this.hideShow(false);
-    this.locksStatus = 4;
-    this.positions["pos1"].sprite.setVisible(true);
-    this.allLocks.forEach((pos) => {
-      this.locks[pos].sprite.setVisible(true);
+    this._locksStatus = 4;
+    this._positions.pos1.sprite.setVisible(true);
+    this._allLocks.forEach((pos) => {
+      this._locks[pos].sprite.setVisible(true);
     });
+    console.log("Detecting princess ....  [PRINCE]");
   }
 
   reset() {
     this.hideShow(true);
   }
+  openLock(events) {
+    if (this._locksStatus > 0) {
+      this._locksStatus--;
+    }
+
+    if (this._locksStatus === 3) {
+      this._locks.lock1.sprite.setVisible(false);
+    } else if (this._locksStatus === 2) {
+      this._locks.lock3.sprite.setVisible(false);
+    } else if (this._locksStatus === 1) {
+      this._locks.lock2.sprite.setVisible(false);
+    } else if (this._locksStatus === 0) {
+      // TODO show princess outside of place now
+      this._locks.lock4.sprite.setVisible(false);
+      this._positions.pos1.sprite.setVisible(false);
+      this._positions.pos2.sprite.setVisible(true);
+      events.emit(ACTIONS.princessFree);
+    }
+  }
+
+  getLocksCount() {
+    return this._locksStatus;
+  }
 
   create(utils) {
-    this.locksStatus = 4;
+    this._locksStatus = 4;
 
-    this.positions = {
+    this._positions = {
       pos1: utils.addOthers(
         {x: 540, y: 65, frame: 18, scale: 0.3, visible: true},
         {}
@@ -40,7 +66,7 @@ class Princess {
         {}
       ),
     };
-    this.locks = {
+    this._locks = {
       lock1: utils.addOthers(
         {x: 530, y: 70, frame: 17, visible: true},
         {}
@@ -59,8 +85,8 @@ class Princess {
       ),
     }
 
-    this.allPositions = Object.keys(this.positions);
-    this.allLocks = Object.keys(this.locks);
+    this._allPositions = Object.keys(this._positions);
+    this._allLocks = Object.keys(this._locks);
   }
 }
 
