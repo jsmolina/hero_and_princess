@@ -6,7 +6,7 @@ import GameScene from './scenes/GameScene';
 const canvas = document.getElementById('game-canvas');
 const config = {
   type: Phaser.WEB_GL,
-  height: 680,
+  height: 880,
   width: 600,
   canvas,
   fps: {

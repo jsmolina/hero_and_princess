@@ -49,6 +49,26 @@ class GameScene extends PointerBase {
     this.cameras.main.setBackgroundColor(0xFFFFFF);
     this.add.image(300, 500, 'bottom');
     this.add.image(300, 160, 'top');
+    this.add.image(300, 780, 'buttons');
+    const up_physical = this.add.image(463, 742, 'up');
+    const down_physical = this.add.image(463, 825, 'down');
+    const left_physical = this.add.image(405, 782, 'left');
+    const right_physical = this.add.image(520, 776, 'right');
+    const start = this.add.image(250, 760, 'start');
+    const jump = this.add.image(85, 788, 'jump');
+    up_physical.setName("up");
+    down_physical.setName("down");
+    left_physical.setName("left");
+    right_physical.setName("right");
+    start.setName("start");
+    jump.setName("jump");
+    up_physical.setInteractive();
+    down_physical.setInteractive();
+    left_physical.setInteractive();
+    right_physical.setInteractive();
+    start.setInteractive();
+    jump.setInteractive();
+
 
     const utils = SceneUtils(this.physics);
     this.hero = new Hero();
@@ -76,6 +96,29 @@ class GameScene extends PointerBase {
     this.takeSwordSound = this.sound.add('takeSword');
     this.deathSound = this.sound.add('death');
     this.keyPressSound = this.sound.add('keyPress');
+
+    this.input.on('pointerup', (pointer, objectsClicked) => {
+      // Get the WORLD x and y position of the pointer
+      const {worldX, worldY} = pointer;
+      console.warn(worldX, worldY);
+      if (objectsClicked.length) {
+        const key = objectsClicked[0].name;
+        this.keyPressSound.play();
+        const keys = {
+          up: ACTIONS.up,
+          down: ACTIONS.down,
+          left: ACTIONS.left,
+          right: ACTIONS.right,
+          jump: ACTIONS.jump,
+        };
+        const action = keys[key];
+        if (action) {
+          this.hero.move(action, this.events, this.enemies.getMonkeyPos());
+        } else if (key === "start") {
+          this.reseting = true;
+        }
+      }
+    });
   }
 
   ticker() {
