@@ -22,6 +22,7 @@ class Hero {
       this._faces.face1.sprite.setVisible(false);
       this._faces.face2.sprite.setVisible(false);
       this._faces.face3.sprite.setVisible(false);
+      console.log("Detecting hero     ....  [PRINCE]");
   }
 
   reset() {
@@ -38,8 +39,9 @@ class Hero {
     this._lives--;
   }
 
-  tryAgain(events) {
-    if (!this._dead) {return false;}
+  tryAgain(events, force) {
+    if (!this._dead && !force) {return false;}
+    console.warn("Try again!");
     // show faces of death
     if (this._lives === 2) {
       this._faces.face1.sprite.setVisible(true);
@@ -54,7 +56,6 @@ class Hero {
       return;
     }
     this.hideShow(false);
-    this._wasUnlocked = false;
     this._dead = false;
     this._position = "pos1";
     this._keyIsTaken = false;
@@ -69,7 +70,7 @@ class Hero {
     this._keyIsTaken = false;
     this._dead = false;
     this._flashCountsDead = 0;
-    this._isOpening = false;
+    this._pause = false;
     this._openCounts = 0;
     this._position = "pos1";
     this._currentSword = "";
@@ -232,7 +233,7 @@ class Hero {
       ),
       pos16_1: utils.addHeroTo(
         {x: 510, y: 360, frame: 15},
-        {noAction: "pos15_1", right: "take:sword"}
+        {noAction: "pos15_1"}
       ),
       pos17: utils.addHeroTo(
         {x: 510, y: 260, frame: 16},
@@ -296,7 +297,6 @@ class Hero {
       this._swordPositions[this._currentSword].sprite.setVisible(false);
     }
     if (this._allSwordPositions.includes(newPosition)) {
-      console.warn(this._currentSword, this._keyIsTaken, this._swordIsTaken);
       if (this._hasSwordInHands() || this._hasKeyInHands()) {
         this._currentSword = newPosition;
         this._swordPositions[this._currentSword].sprite.setVisible(true);
@@ -319,7 +319,6 @@ class Hero {
     if((currentPosition === "pos24" && monkeyPos === "left")
       || (currentPosition === "pos25" && monkeyPos === "middle")
       || (currentPosition === "pos26" && monkeyPos === "right")) {
-      console.warn("Fightin... emit event ");
       events.emit(ACTIONS.swordHit);
     }
     this._swordPositions[this._currentSword].sprite.setVisible(false);
@@ -369,14 +368,13 @@ class Hero {
     this._wasHit = true;
     const newPosition = this._positions[this._position].actions[ACTIONS.left];
     if (newPosition) {
-      console.warn("New position is", newPosition);
       this._changePosition(newPosition, events);
     }
     this._wasHit = false;
   }
 
   move(where, events, monkeyPos) {
-    if(this._dead || this._wasHit || this._openCounts > 0) {
+    if(this._dead || this._wasHit || this._openCounts > 0 || this._pause) {
       // you don't move while dead, you zombie :)
       return;
     }
@@ -394,18 +392,15 @@ class Hero {
             events.emit(ACTIONS.takeSword);
           }
         } else if (newPosition.includes("take:openKey") && this._keyIsTaken) {
-          console.log("Right has open key");
           events.emit(ACTIONS.openLock);
           this._openCounts = 10;
         }
       } else if (newPosition === "fight:sword") {
-        console.log("fight sword", this._position);
         this.swordFight(this._position, monkeyPos, events);
       }  else if (newPosition.includes("cond:")) {
         //// switch to new position
         //         this.changePosition(newPosition, events);
         const cleanPos = newPosition.split(":")[1];
-        console.log("monkey pos is ", monkeyPos);
         if (cleanPos === "pos25" && monkeyPos === "left") {
           return false;
         } else if (cleanPos === "pos26" && monkeyPos === "middle") {
@@ -413,7 +408,6 @@ class Hero {
         } else if (cleanPos === "pos27" && monkeyPos === "right") {
           return false;
         }
-        console.warn("Moving from", this._position, "to", cleanPos, "monkey", monkeyPos);
         this._changePosition(cleanPos, events);
       } else {
         // if sprite is moved, stop any automatic action
@@ -442,9 +436,7 @@ class Hero {
 
     if (this._openCounts > 0) {
       this._openCounts--;
-      console.log("removing opencounts", this._openCounts);
       if (this._openCounts === 0) {
-        console.log("end open lock");
         this._keyIsTaken = false;
         events.emit(ACTIONS.openLockFinished);
       }

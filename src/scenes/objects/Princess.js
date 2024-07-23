@@ -1,3 +1,5 @@
+import {ACTIONS} from "../constants";
+
 class Princess {
   unlock() {
     this._locksStatus--;
@@ -17,10 +19,11 @@ class Princess {
   start() {
     this.hideShow(false);
     this._locksStatus = 4;
-    this._positions["pos1"].sprite.setVisible(true);
+    this._positions.pos1.sprite.setVisible(true);
     this._allLocks.forEach((pos) => {
       this._locks[pos].sprite.setVisible(true);
     });
+    console.log("Detecting princess ....  [PRINCE]");
   }
 
   reset() {
@@ -40,7 +43,14 @@ class Princess {
     } else if (this._locksStatus === 0) {
       // TODO show princess outside of place now
       this._locks.lock4.sprite.setVisible(false);
+      this._positions.pos1.sprite.setVisible(false);
+      this._positions.pos2.sprite.setVisible(true);
+      events.emit(ACTIONS.princessFree);
     }
+  }
+
+  getLocksCount() {
+    return this._locksStatus;
   }
 
   create(utils) {

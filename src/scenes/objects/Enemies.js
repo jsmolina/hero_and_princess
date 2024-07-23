@@ -29,6 +29,8 @@ class Enemies {
     this._leftBallPos = undefined;
     this._flashCountsDead = 0;
     this._dead = false;
+    console.log("Detecting monkey   ....  [MONKEY]");
+    console.log("Detecting bird     ....  [BIRD]");
   }
 
   reset() {
@@ -93,9 +95,8 @@ class Enemies {
   deathEnd(events, heroPos) {
     this._dead = false;
     // TODO check now hero position so he deads if already there!
-    console.warn("DeathEnd", heroPos);
     if (heroPos === "pos27") {
-      console.warn("End death and hero is already there, hero death");
+      console.warn("hero is already there, hero death");
       events.emit(ACTIONS.heroHitByMonkey);
     }
 
@@ -110,7 +111,6 @@ class Enemies {
     if (this._hits > 0) {
       this._hits--;
     }
-    console.warn("Swordhit in enemies...", this._hits)
     if (this._hits <= 0) {
       const currentNodeFsm = this._monkeyFightFsm2[this._monkeyFsmFightStr];
       // hide monkey arm
@@ -118,18 +118,15 @@ class Enemies {
         this._monkeyArm[pos].sprite.setVisible(false);
       });
       if (this._monkeyPos === "left") {
-        console.log("Reached left all hits");
         //this._monkeyFsmPos = 3;
         this._hits = DEFAULT_HITS;
         this._monkeyFsmFightStr = currentNodeFsm.hits;
         this._monkeyPos = "middle";
       } else if (this._monkeyPos === "middle") {
-        console.log("Reached middle all hits");
         this._hits = DEFAULT_HITS;
         this._monkeyFsmFightStr = currentNodeFsm.hits;
         this._monkeyPos = "right";
       } else if (this._monkeyPos === "right") {
-        console.log("Reached right all hits, monkey (temporary) dead starts");
         this._monkeyPos = "rightDead";
         this.death();
       }
@@ -163,7 +160,6 @@ class Enemies {
         events.emit(ACTIONS.heroHitByMonkey);
       } else if (currentNodeFsm.position === "middle" && currentNodeFsm.arm === "middlePunch" && heroPos === "pos25") {
         // pos25
-        console.warn("new position!! ", this._monkeyPos)
         this._hits = DEFAULT_HITS;
         events.emit(ACTIONS.heroHitByMonkeyOnMiddleOrRight);
       } else if (currentNodeFsm.position === "right" && currentNodeFsm.arm === "rightPunch" && heroPos === "pos26") {
@@ -193,7 +189,6 @@ class Enemies {
         console.warn("no actualNode found for ", newPos);
         return;
       }
-      console.log("heropos", heroPos, newPos);
       actualNode.sprite.setVisible(false);
       const noAction = actualNode.actions.noAction;
       const noActionPos =
@@ -219,8 +214,6 @@ class Enemies {
     //console.info("heroPos", heroPos, "middleBallpos", this._middleBallPos, "leftBallpos", this._leftBallPos);
     if(this._middleBallPos && this._ball[this._middleBallPos] && this._ball[this._middleBallPos].actions.death) {
       if (this._ball[this._middleBallPos].actions.death.includes(heroPos)) {
-        // todo two ticks maybe?
-        console.warn("Hero death middle!!", this._middleBallPos, heroPos);
         events.emit(ACTIONS.death);
         return true;
       }
@@ -278,15 +271,13 @@ class Enemies {
   }
 
   changeFloor(floor, direction) {
-    console.warn("**** Switch to floor");
     this._heroFloor = floor;
     this._flashCountsDead = 0;
     this._dead = false;
     // hide all
-    this.hideShow(false);
+    //this.hideShow(false);
     // switch monkey fsm to left
     if (floor === ACTIONS.floor3) {
-      console.warn("**** To floor 3");
       const currentNodeFsm = this._monkeyFsm2[this._monkeyFsmPosStr];
       this._monkeyPos = "left";
       this._monkeyFsmPosStr = "left";
@@ -295,15 +286,12 @@ class Enemies {
       const newNodeFsm = this._monkeyFightFsm2[this._monkeyFsmFightStr];
       this._moveMonkeySprite(currentNodeFsm, newNodeFsm);
     } else if (floor === ACTIONS.floor2 && direction === ACTIONS.down) {
-      console.warn("**** From floor 3", this._monkeyFsmFightStr, this._monkeyFsmPosStr);
       const currentNodeFsm = this._monkeyFightFsm2[this._monkeyFsmFightStr];
       this._monkeyFsmFightStr = "";
       this._monkeyPos = "left";
       this._monkeyFsmPosStr = "left";
       const newNodeFsm = this._monkeyFsm2[this._monkeyFsmPosStr];
       this._moveMonkeySprite(currentNodeFsm, newNodeFsm);
-      console.warn("curr", currentNodeFsm);
-      console.warn("new", newNodeFsm);
     }
   }
 

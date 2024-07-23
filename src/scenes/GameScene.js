@@ -28,6 +28,7 @@ class GameScene extends PointerBase {
     this.events.on(ACTIONS.heroHitByMonkeyOnMiddleOrRight, this.heroHitByMonkeyOnMiddleOrRight, this);
     this.events.on(ACTIONS.openLock, this.openLock, this);
     this.events.on(ACTIONS.openLockFinished, this.openLockFinished, this);
+    this.events.on(ACTIONS.princessFree, this.princessFree, this);
 
     this.triggerTimer = this.time.addEvent({
         callback: this.fastTicker,
@@ -43,10 +44,8 @@ class GameScene extends PointerBase {
         loop: true
     });
 
-    this.frameTime = 0;
     this.reseting = false;
     this.reseted = false;
-    this.text = null;
     this.cameras.main.setBackgroundColor(0xFFFFFF);
     this.add.image(300, 500, 'bottom');
     this.add.image(300, 160, 'top');
@@ -54,7 +53,6 @@ class GameScene extends PointerBase {
     const utils = SceneUtils(this.physics);
     this.hero = new Hero();
     this.hero.create(utils);
-    this.heroPos = "pos1";
 
     this.enemies = new Enemies();
     this.enemies.create(utils);
@@ -81,7 +79,6 @@ class GameScene extends PointerBase {
   }
 
   ticker() {
-    // todo: check game started
     if (this.hero.isDead()) {
       return;
     }
@@ -95,13 +92,11 @@ class GameScene extends PointerBase {
   }
 
   keyHandler() {
-    console.log("KeyHandler called");
     this.takeKeySound.play();
     this.statics.takeKey();
   }
 
   swordHandler() {
-    console.log("SwordHandler called");
     this.takeSwordSound.play();
     this.statics.takeSword();
   }
@@ -113,20 +108,31 @@ class GameScene extends PointerBase {
     this.statics.showHideFriendPlatform(false);
   }
 
+  princessFree() {
+    console.warn("Game won!!!")
+    this.enemies.paws();
+    this.takeSwordSound.play();
+  }
+
+  princessFreeEnds() {
+    console.warn("===== Princess free ends ==== ");
+    this.hero.tryAgain(this.events, true);
+    this.statics.start();
+    this.princess.reset();
+    this.princess.start();
+    this.enemies.start();
+  }
+
   deathStarts() {
-    console.warn("Dead starts -->");
     this.hero.death();
     this.enemies.paws();
     this.deathSound.play();
   }
 
   deathEnds() {
-    console.warn("<---- Dead end");
-    // TODO flashing ends, a new head appears on top, hero retries
     this.statics.start();
     this.enemies.start();
     this.hero.tryAgain(this.events);
-    this.heroPos = "pos1";
   }
 
   noLives() {
@@ -158,15 +164,16 @@ class GameScene extends PointerBase {
 
   openLockFinished() {
     this.statics.leaveKey();
+    if (this.princess.getLocksCount() === 0) {
+      this.princessFreeEnds();
+    }
   }
 
   heroHitByMonkey() {
-    console.warn("Hero hit by monkey!!!!");
     this.deathStarts();
   }
 
   heroHitByMonkeyOnMiddleOrRight() {
-    console.warn("Hero hit by monkey on middle or right!", this.enemies.getMonkeyPos());
     // simulates hero move to left by punch
     this.hero.hit(this.events);
   }
@@ -190,10 +197,13 @@ class GameScene extends PointerBase {
 
     if (this.reseting && this.cursors.shift.isUp) {
       this.reseting = false;
-      console.log("Reset pressed");
+      console.log("Tandy Hero and Princess BIOS");
+      console.log("");
+      console.log("Main Processor: Sharp SM5XX");
+      console.log("Chipsel Model: None");
+      console.log("");
       if (!this.reseted) {
         this.hero.reset();
-        this.heroPos = "pos1";
         this.enemies.reset();
         this.statics.reset();
         this.princess.reset();
@@ -205,6 +215,8 @@ class GameScene extends PointerBase {
             this.enemies.start();
             this.statics.start();
             this.reseted = false;
+            console.log("");
+            console.log("Booting... ");
           },
           callbackScope: this,
           delay: 2000,
