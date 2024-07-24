@@ -10,4 +10,7 @@ Keys:
 * Space: Jump/Sword use.
 * Shift: Reset.
 
+* Or... just use the buttons (touch control is supported)
+
 Try it at https://jsmolina.github.io/hero_and_princess/
+
