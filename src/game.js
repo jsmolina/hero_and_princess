@@ -1,4 +1,3 @@
-import './main.css';
 import Phaser, {Game} from 'phaser';
 import BootScene from './scenes/BootScene';
 import GameScene from './scenes/GameScene';

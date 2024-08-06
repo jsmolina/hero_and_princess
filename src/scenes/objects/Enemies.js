@@ -1,4 +1,4 @@
-import { ACTIONS, DEFAULT_HITS } from "../constants";
+import { ACTIONS, DEFAULT_HITS } from "../constants.js";
 
 class Enemies {
   hideShow(visible) {
@@ -148,7 +148,7 @@ class Enemies {
       // monkey should fight and not move easily
       const doesHit = Math.random();
       // firstFight
-      this._monkeyFsmFightStr = (doesHit > 0.9) ?
+      this._monkeyFsmFightStr = (doesHit > 0.95) ?
           noAction[0] : noAction[1];
 
       const newNodeFsm = this._monkeyFightFsm2[this._monkeyFsmFightStr];
