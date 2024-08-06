@@ -21,7 +21,7 @@ time, mark, audio, video {
 
 @font-face {
     font-family: CustomFont;
-    src: url('assets/ONESIZE.ttf');
+    src: url('/assets/ONESIZE.TTF');
     font-style: normal;
 }
 
@@ -77,4 +77,8 @@ time, mark, audio, video {
 
 body {
     background-color: #5f0d11;
+}
+
+.help {
+    color: grey;
 }
