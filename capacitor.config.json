@@ -1,0 +1,8 @@
+{
+  "appId": "jsmolina.HeroAndPrincess",
+  "appName": "HeroAndPrincess",
+  "bundledWebRuntime": false,
+  "npmClient": "npm",
+  "webDir": "dist",
+  "cordova": {}
+}

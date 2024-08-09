@@ -32,6 +32,7 @@ time, mark, audio, video {
     font-size: 40px;
 }
 
+
 @media only screen and (max-width: 1920px) {
     canvas {
         height: 100vh;
@@ -77,8 +78,28 @@ time, mark, audio, video {
 
 body {
     background-color: #5f0d11;
+    height: 100vh;
+}
+
+.box {
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+}
+.box .row {
+  border: 1px dotted grey;
+}
+
+
+.tablier {
+    flex: 0 1 auto;
 }
 
 .help {
     color: grey;
+    background-image: url("assets/bg.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    flex: 1 1 auto;
+    height: 100vh;
 }
