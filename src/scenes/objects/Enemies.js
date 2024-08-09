@@ -148,7 +148,7 @@ class Enemies {
       // monkey should fight and not move easily
       const doesHit = Math.random();
       // firstFight
-      this._monkeyFsmFightStr = (doesHit > 0.95) ?
+      this._monkeyFsmFightStr = (doesHit > 0.40) ?
           noAction[0] : noAction[1];
 
       const newNodeFsm = this._monkeyFightFsm2[this._monkeyFsmFightStr];

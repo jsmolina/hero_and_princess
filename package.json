@@ -25,14 +25,16 @@
   },
   "main": "main.js",
   "devDependencies": {
+    "@capacitor/cli": "6.1.2",
+    "@capacitor/core": "6.1.2",
     "@electron/packager": "18.3.3",
     "electron": "^31.3.1",
+    "phaser": "^3.80.1",
     "vite": "^5.3.1",
-    "vite-plugin-electron-renderer": "^0.14.5",
-    "phaser": "^3.80.1"
+    "vite-plugin-electron-renderer": "^0.14.5"
   },
   "dependencies": {
-
+    "@capacitor/android": "^6.1.2"
   },
   "compilerOptions": {
     "baseUrl": "src"
