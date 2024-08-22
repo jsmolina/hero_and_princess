@@ -12,5 +12,5 @@ Keys:
 
 * Or... just use the buttons (touch control is supported)
 
-Try it at https://jsmolina.github.io/hero_and_princess/
+Try it at https://jbinary.itch.io/hero-and-princess-handheld
 
