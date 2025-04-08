@@ -7,7 +7,6 @@ import Princess from "./objects/Princess";
 import { ACTIONS } from "./constants";
 
 class GameScene extends PointerBase {
-
   constructor() {
     super("scene-game");
   }
@@ -25,37 +24,41 @@ class GameScene extends PointerBase {
     this.events.on(ACTIONS.floor1, this.heroFloor1, this);
     this.events.on(ACTIONS.swordHit, this.swordHit, this);
     this.events.on(ACTIONS.heroHitByMonkey, this.heroHitByMonkey, this);
-    this.events.on(ACTIONS.heroHitByMonkeyOnMiddleOrRight, this.heroHitByMonkeyOnMiddleOrRight, this);
+    this.events.on(
+      ACTIONS.heroHitByMonkeyOnMiddleOrRight,
+      this.heroHitByMonkeyOnMiddleOrRight,
+      this
+    );
     this.events.on(ACTIONS.openLock, this.openLock, this);
     this.events.on(ACTIONS.openLockFinished, this.openLockFinished, this);
     this.events.on(ACTIONS.princessFree, this.princessFree, this);
 
     this.triggerTimer = this.time.addEvent({
-        callback: this.fastTicker,
-        callbackScope: this,
-        delay: 250, // 1000 = 1 second
-        loop: true
+      callback: this.fastTicker,
+      callbackScope: this,
+      delay: 250, // 1000 = 1 second
+      loop: true,
     });
 
     this.normalTimer = this.time.addEvent({
-        callback: this.ticker,
-        callbackScope: this,
-        delay: 1000, // 1000 = 1 second
-        loop: true
+      callback: this.ticker,
+      callbackScope: this,
+      delay: 1000, // 1000 = 1 second
+      loop: true,
     });
 
     this.reseting = false;
     this.reseted = false;
-    this.cameras.main.setBackgroundColor(0xFFFFFF);
-    this.add.image(300, 500, 'bottom');
-    this.add.image(300, 160, 'top');
-    this.add.image(300, 780, 'buttons');
-    const up_physical = this.add.image(463, 742, 'up');
-    const down_physical = this.add.image(463, 825, 'down');
-    const left_physical = this.add.image(405, 782, 'left');
-    const right_physical = this.add.image(520, 776, 'right');
-    const start = this.add.image(250, 760, 'start');
-    const jump = this.add.image(85, 788, 'jump');
+    this.cameras.main.setBackgroundColor(0xffffff);
+    this.add.image(300, 500, "bottom");
+    this.add.image(300, 160, "top");
+    this.add.image(300, 780, "buttons");
+    const up_physical = this.add.image(463, 741, "up");
+    const down_physical = this.add.image(463, 823, "down");
+    const left_physical = this.add.image(405, 782, "left");
+    const right_physical = this.add.image(518, 779, "right");
+    const start = this.add.image(250, 757, "start");
+    const jump = this.add.image(86, 781, "jump");
     up_physical.setName("up");
     down_physical.setName("down");
     left_physical.setName("left");
@@ -68,7 +71,6 @@ class GameScene extends PointerBase {
     right_physical.setInteractive();
     start.setInteractive();
     jump.setInteractive();
-
 
     const utils = SceneUtils(this.physics);
     this.hero = new Hero();
@@ -90,16 +92,54 @@ class GameScene extends PointerBase {
 
     // Create a helper object for our arrow keys
     this.cursors = this.input.keyboard.createCursorKeys();
-    this.enterKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
+    this.enterKey = this.input.keyboard.addKey(
+      Phaser.Input.Keyboard.KeyCodes.ENTER
+    );
     // init sounds
-    this.takeKeySound = this.sound.add('takeKey');
-    this.takeSwordSound = this.sound.add('takeSword');
-    this.deathSound = this.sound.add('death');
-    this.keyPressSound = this.sound.add('keyPress');
+    this.takeKeySound = this.sound.add("takeKey");
+    this.takeSwordSound = this.sound.add("takeSword");
+    this.deathSound = this.sound.add("death");
+    this.keyPressSound = this.sound.add("keyPress");
+    //
+    up_physical.on("pointerdown", function () {
+      up_physical.setTexture("up_pressed");
+    });
+    up_physical.on("pointerup", function () {
+      up_physical.setTexture("up");
+    });
+    //
+    left_physical.on("pointerdown", function () {
+      left_physical.setTexture("left_pressed");
+    });
+    left_physical.on("pointerup", function () {
+      left_physical.setTexture("left");
+    });
+    //
+    right_physical.on("pointerdown", function () {
+      right_physical.setTexture("right_pressed");
+    });
+    right_physical.on("pointerup", function () {
+      right_physical.setTexture("right");
+    });
+    //
+    down_physical.on("pointerdown", function () {
+      down_physical.setTexture("down_pressed");
+    });
+    down_physical.on("pointerup", function () {
+      down_physical.setTexture("down");
+    });
+    //
+    jump.on("pointerdown", function () {
+      jump.setTexture("jump_pressed");
+    });
+    jump.on("pointerup", function () {
+      jump.setTexture("jump");
+    });
+    //
 
-    this.input.on('pointerup', (pointer, objectsClicked) => {
+    this.input.on("pointerup", (pointer, objectsClicked) => {
       // Get the WORLD x and y position of the pointer
-      const {worldX, worldY} = pointer;
+      const { worldX, worldY } = pointer;
       console.warn(worldX, worldY);
       if (objectsClicked.length) {
         const key = objectsClicked[0].name;
@@ -152,7 +192,7 @@ class GameScene extends PointerBase {
   }
 
   princessFree() {
-    console.warn("Game won!!!")
+    console.warn("Game won!!!");
     this.enemies.paws();
     this.takeSwordSound.play();
   }
@@ -194,7 +234,7 @@ class GameScene extends PointerBase {
   }
 
   swordHit() {
-    this.enemies.swordHit()
+    this.enemies.swordHit();
   }
 
   openLock() {
@@ -230,7 +270,12 @@ class GameScene extends PointerBase {
         // Code that relies on a consistent 60hz update
     }
     console.log("t", time);*/
-    if (this.cursors.down.isDown || this.cursors.up.isDown || this.cursors.left.isDown || this.cursors.right.isDown) {
+    if (
+      this.cursors.down.isDown ||
+      this.cursors.up.isDown ||
+      this.cursors.left.isDown ||
+      this.cursors.right.isDown
+    ) {
       this.keyPressSound.play();
     }
 
@@ -263,7 +308,7 @@ class GameScene extends PointerBase {
           },
           callbackScope: this,
           delay: 2000,
-          loop: false
+          loop: false,
         });
       }
     }
@@ -294,10 +339,7 @@ class GameScene extends PointerBase {
     }
   }
 
-  _checkTarget() {
-
-  }
-
+  _checkTarget() {}
 }
 
 export default GameScene;
