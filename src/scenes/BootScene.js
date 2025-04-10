@@ -11,11 +11,17 @@ class BootScene extends Scene {
     this.load.image('bottom', 'assets/bottom_bg.png');
     this.load.image('buttons', 'assets/buttons.png');
     this.load.image('up', 'assets/up.png');
+    this.load.image('up_pressed', 'assets/up_pressed.png');
     this.load.image('down', 'assets/down.png');
+    this.load.image('down_pressed', 'assets/down_pressed.png');
     this.load.image('left', 'assets/left.png');
+    this.load.image('left_pressed', 'assets/left_pressed.png');
     this.load.image('right', 'assets/right.png');
+    this.load.image('right_pressed', 'assets/right_pressed.png');
     this.load.image('start', 'assets/start.png');
+    this.load.image('start_pressed', 'assets/start_pressed.png');
     this.load.image('jump', 'assets/jump.png');
+    this.load.image('jump_pressed', 'assets/jump_pressed.png');
     this.load.image('top', 'assets/top_bg.png');
     this.load.image('img', 'assets/spritesheet.png');
     this.load.spritesheet('hero', 'assets/spritesheet.png', {frameWidth: 315, frameHeight: 406});
